@@ -2,9 +2,10 @@
 
 ## Grupo
 ### Integrantes
-* [Tu Legajo] - Dentesano, Valentino
-* [Legajo Amigo 1] - [Apellido, Nombre]
-* [Legajo Amigo 2] - [Apellido, Nombre]
+* 54915 - Dentesano, Valentino
+* 54714 - Giunta, Lautaro
+* 54914 - Taborda, Fausto
+* ????? - Lagos, Franco
 
 ### Repositorios
 * [frontend app](http://hyperlinkToGihubOrGitlab)
@@ -79,7 +80,7 @@ erDiagram
 Regularidad:
 |Req|Detalle|
 |:-|:-|
-|CRUD simple|1. CRUD Refugio<br>2. CRUD Estado Mascota<br>3. CRUD Especie/Raza|
+|CRUD simple|1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie/Raza|
 |CRUD dependiente|1. CRUD Mascota {depende de} CRUD Refugio y CRUD Estado Mascota<br>2. CRUD Vacuna {depende de} CRUD Mascota|
 |Listado<br>+<br>detalle| 1. Listado de mascotas filtrado por estado y tamaño, muestra nombre, edad y tamaño =\> detalle muestra ficha médica, vacunas y datos completos de la mascota.<br> 2. Listado de solicitudes de adopción filtrado por estado (pendiente, aprobada, rechazada), muestra fecha, nombre del postulante y mascota =\> detalle muestra formulario completo del adoptante.|
 |CUU/Epic|1. Postularse a una adopción completando el formulario dinámico.<br>2. Aprobar o rechazar una solicitud de adopción (actualizando el estado de la mascota automáticamente).|
