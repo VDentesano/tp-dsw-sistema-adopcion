@@ -1,18 +1,22 @@
 # Propuesta TP DSW
 
 ## Grupo
+
 ### Integrantes
+
 * 54915 - Dentesano, Valentino
 * 54714 - Giunta, Lautaro
 * 54914 - Taborda, Fausto
 * ????? - Lagos, Franco
 
 ### Repositorios
-* [frontend app](http://hyperlinkToGihubOrGitlab)
-* [backend app](http://hyperlinkToGihubOrGitlab)
+
+* [fullstack app](https://github.com/VDentesano/tp-dsw-sistema-adopcion)
 
 ## Tema
+
 ### Descripción
+
 Plataforma SaaS para la gestión integral de refugios de animales y adopciones responsables. El sistema permite administrar el ciclo de vida de las mascotas (ingreso, tratamiento, disponibilidad), procesar solicitudes de adopción dinámicas y llevar un seguimiento post-adopción. Está orientado a facilitar el trabajo de los voluntarios y asegurar el bienestar animal mediante estrictas reglas de negocio para la transición de estados de las mascotas.
 
 ### Modelo
@@ -78,6 +82,7 @@ erDiagram
 ### Alcance Mínimo
 
 Regularidad:
+
 |Req|Detalle|
 |:-|:-|
 |CRUD simple|1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie/Raza|
@@ -86,6 +91,7 @@ Regularidad:
 |CUU/Epic|1. Postularse a una adopción completando el formulario dinámico.<br>2. Aprobar o rechazar una solicitud de adopción (actualizando el estado de la mascota automáticamente).|
 
 Adicionales para Aprobación
+
 |Req|Detalle|
 |:-|:-|
 |CRUD |1. CRUD Refugio<br>2. CRUD Estado Mascota<br>3. CRUD Especie/Raza<br>4. CRUD Usuario (Roles: Admin, Voluntario, Adoptante)<br>5. CRUD Mascota<br>6. CRUD Vacuna<br>7. CRUD Seguimiento Post-Adopción|
