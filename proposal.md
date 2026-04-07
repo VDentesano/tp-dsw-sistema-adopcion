@@ -153,7 +153,7 @@ A continuación, se detallan los requerimientos funcionales del sistema, estruct
 | Requerimiento | Detalle |
 | :--- | :--- |
 | **CRUD Simple** | 1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie |
-| **CRUD Dependiente** | 1. CRUD Mascota (Depende de Refugio y Estado)<br>2. CRUD Vacuna (Depende de Mascota)<br>3.CRUD Raza |
+| **CRUD Dependiente** | 1. CRUD Mascota (Depende de Refugio y Estado)<br>2. CRUD Vacuna (Depende de Mascota)<br>3. CRUD Raza (Depende de Especie)|
 | **Listados + Detalle** | 1. **Catálogo de Mascotas:** Listado filtrado por estado y tamaño. Muestra nombre, edad y tamaño. El detalle expone la ficha médica y vacunas.<br>2. **Gestión de Solicitudes:** Listado filtrado por estado (pendiente, aprobada, rechazada). Muestra fecha, postulante y mascota. Detalle muestra formulario completo. |
 | **CUU / Epic** | 1. **Postulación:** El usuario se postula a una adopción completando un formulario dinámico.<br>2. **Resolución:** El voluntario aprueba o rechaza una solicitud, actualizando automáticamente el estado de la mascota y registrando la auditoría. |
 
