@@ -5,7 +5,7 @@
 * 54915 - Dentesano, Valentino
 * 54714 - Giunta, Lautaro
 * 54914 - Taborda, Fausto
-* ????? - Lagos, Franco
+* 54887 - Lagos, Franco
 
 **Repositorios:**
 * [Fullstack App](#) 
