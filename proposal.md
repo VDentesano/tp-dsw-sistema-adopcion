@@ -152,8 +152,8 @@ A continuación, se detallan los requerimientos funcionales del sistema, estruct
 
 | Requerimiento | Detalle |
 | :--- | :--- |
-| **CRUD Simple** | 1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie |
-| **CRUD Dependiente** | 1. CRUD Mascota (Depende de Refugio y Estado)<br>2. CRUD Vacuna (Depende de Mascota)<br>3. CRUD Raza (Depende de Especie)|
+| **CRUD Simple** | 1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie<br>4. CRUD Rol|
+| **CRUD Dependiente** | 1. CRUD Mascota (Depende de Refugio y Estado)<br>2. CRUD Raza (Depende de Especie)|
 | **Listados + Detalle** | 1. **Catálogo de Mascotas:** Listado filtrado por estado y tamaño. Muestra nombre, edad y tamaño. El detalle expone la ficha médica y vacunas.<br>2. **Gestión de Solicitudes:** Listado filtrado por estado (pendiente, aprobada, rechazada). Muestra fecha, postulante y mascota. Detalle muestra formulario completo. |
 | **CUU / Epic** | 1. **Postulación:** El usuario se postula a una adopción completando un formulario dinámico.<br>2. **Resolución:** El voluntario aprueba o rechaza una solicitud, actualizando automáticamente el estado de la mascota y registrando la auditoría. |
 
@@ -161,13 +161,13 @@ A continuación, se detallan los requerimientos funcionales del sistema, estruct
 
 | Requerimiento | Detalle |
 | :--- | :--- |
-| **Gestión de Entidades (CRUD)** | Extensión de ABMs para cubrir el modelo completo:<br>1. CRUD Refugio, Estado Mascota, Especie/Raza.<br>2. CRUD Usuario (Roles: Admin, Voluntario, Adoptante).<br>3. CRUD Mascota, Vacuna y Seguimiento Post-Adopción. |
-| **CUU / Epic** | 1. Postulación con formulario dinámico.<br>2. Resolución de solicitud con transiciones automáticas en el sistema de auditoría.<br>3. Registro y validación de controles periódicos en el módulo de seguimiento. |
+| **Gestión de Entidades (CRUD)** | Extensión de ABMs para cubrir el modelo completo:<br>1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie<br>4. CRUD Rol<br>5. CRUD Notificacion<br>6. CRUD Entrevista_Visita<br>7. CRUD Seguimiento<br>8. CRUD Solicitud_Adopcion<br>9. CRUD Auditoria_Estado<br>10. CRUD Historia_Clinica<br>11. CRUD Especie<br>12. CRUD Raza<br>13. CRUD Mascota|
+| **CUU / Epic** | 1. Postulación con formulario dinámico.<br>2. Resolución de solicitud con transiciones automáticas en el sistema de auditoría.<br>3. Registro y validación de controles periódicos en el módulo de seguimiento.<br>4. Match de Adopcion, algoritmo que sugiere mascotas compatibles según las preferencias del adoptante. |
 
 ### Alcance Adicional Voluntario
 
 | Requerimiento | Detalle |
 | :--- | :--- |
 | **Listados Complejos** | 1. **Panel de Seguimientos:** Listado de tareas y visitas pendientes por fecha límite.<br>2. **Reportes:** Estadísticas mensuales de adopción filtradas por refugio. |
-| **CUU / Epic** | 1. **Match de Adopción:** Algoritmo que sugiere mascotas compatibles según las preferencias del adoptante.<br>2. **Turnos de Entrevista:** Gestión de agenda para visitas presenciales en la institución. |
+| **CUU / Epic** | 1. **Turnos de Entrevista:** Gestión de agenda para visitas presenciales en la institución. |
 | **Automatización** | 1. **Alertas:** Envío de notificaciones y recordatorios por email automáticos cuando un seguimiento post-adopción está vencido. |
