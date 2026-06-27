@@ -30,10 +30,6 @@ export class Mascota extends BaseEntity {
   @Property({ nullable: true })
   estilo?: string;
 
-
-  @ManyToOne(() => Especie, { nullable: false })
-  especie!: Especie;
-
   @ManyToOne(() => Raza, { nullable: false })
   raza!: Raza;
 
