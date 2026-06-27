@@ -4,28 +4,18 @@ import {
   OneToMany
 } from "@mikro-orm/decorators/legacy";
 //preguntar al profe por el cambio de version
-import { Collection, Cascade } from "@mikro-orm/core";
+import { Collection } from "@mikro-orm/core";
 import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Usuario } from "../usuario/usuario.entity.js";
 
-
 @Entity()
-export class Refugio extends BaseEntity {
+export class Rol extends BaseEntity {
+
   @Property({ nullable: false, unique: true })
   nombre!: string;
 
-  @Property()
-  direccion!: string;
-
-  @Property()
-  telefono!: string;
-
-  @Property()
-  email!: string;
-
-  @OneToMany(() => Usuario, (usuario) => usuario.refugio /*, {cascade: [Cascade.PERSIST]} */) // deberiamos usar cascade??
+  @OneToMany(() => Usuario, (usuario) => usuario.rol)
   usuarios = new Collection<Usuario>(this);
 
- /* @Property()
-  localidadID!: number;*/
 }
+
