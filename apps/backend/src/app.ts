@@ -11,7 +11,7 @@ app.use(express.json());
 app.use((req, res, next) => {
    RequestContext.create(orm.em, next)
 })
-
+//antes de las rutas y middlewares de negocio
 
 await syncSchema();  //no usar en produccion
 
