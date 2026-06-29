@@ -7,6 +7,7 @@ import {
 import { Collection, Cascade } from "@mikro-orm/core";
 import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Usuario } from "../usuario/usuario.entity.js";
+import { Mascota } from "../mascota/mascota.entity.js";
 
 
 @Entity()
@@ -25,6 +26,9 @@ export class Refugio extends BaseEntity {
 
   @OneToMany(() => Usuario, (usuario) => usuario.refugio /*, {cascade: [Cascade.PERSIST]} */) // deberiamos usar cascade??
   usuarios = new Collection<Usuario>(this);
+
+  @OneToMany(() => Mascota, (mascota) => mascota.refugio /*, {cascade: [Cascade.PERSIST]} */) // deberiamos usar cascade??
+  mascotas = new Collection<Mascota>(this);
 
  /* @Property()
   localidadID!: number;*/
