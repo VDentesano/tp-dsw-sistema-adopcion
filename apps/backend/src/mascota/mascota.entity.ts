@@ -1,33 +1,27 @@
-import {
-  Entity,
-  Property,
-  ManyToOne,
-} from "@mikro-orm/decorators/legacy";
+import { Entity, Property, ManyToOne } from "@mikro-orm/decorators/es";
 
 import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Raza } from "../raza/raza.entity.js";
-import { Especie } from "../especie/especie.entity.js";
-import { Refugio } from "../refugio/refugio.entity.js"; // Asumiendo esta ruta
+import { Refugio } from "../refugio/refugio.entity.js";
 
 @Entity()
 export class Mascota extends BaseEntity {
-
-  @Property({ nullable: false })
+  @Property({ type: "string", nullable: false })
   nombre!: string;
 
-  @Property({ type: 'date', nullable: true })
+  @Property({ type: "date", nullable: true })
   fechaDeNac?: Date;
 
-  @Property({ nullable: true })
+  @Property({ type: "string", nullable: true })
   tamano?: string;
 
-  @Property({ nullable: true })
+  @Property({ type: "string", nullable: true })
   estado?: string;
 
-  @Property({ nullable: true })
+  @Property({ type: "string", nullable: true })
   fotoURL?: string;
 
-  @Property({ nullable: true })
+  @Property({ type: "string", nullable: true })
   estilo?: string;
 
   @ManyToOne(() => Raza, { nullable: false })
@@ -35,5 +29,4 @@ export class Mascota extends BaseEntity {
 
   @ManyToOne(() => Refugio, { nullable: false })
   refugio!: Refugio;
-
 }

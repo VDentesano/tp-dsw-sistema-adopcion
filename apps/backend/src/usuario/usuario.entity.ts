@@ -1,29 +1,23 @@
-import { 
-  Entity, 
-  Property,
-  ManyToOne
-} from "@mikro-orm/decorators/legacy";
-//preguntar al profe por el cambio de version
+import { Entity, Property, ManyToOne } from "@mikro-orm/decorators/es";
 import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Refugio } from "../refugio/refugio.entity.js";
 import { Rol } from "../rol/rol.entity.js";
 
 @Entity()
 export class Usuario extends BaseEntity {
-
-  @Property()
+  @Property({ type: 'string' })
   nombre!: string;
 
-  @Property()
+  @Property({ type: 'string' })
   apellido!: string;
 
-  @Property({ unique: true })
+  @Property({ type: 'string', unique: true })
   email!: string;
 
-  @Property()
+  @Property({ type: 'string' })
   password!: string;
 
-  @Property()
+  @Property({ type: 'string' })
   telefono!: string;
 
   @ManyToOne(() => Refugio, { nullable: true })
@@ -31,9 +25,8 @@ export class Usuario extends BaseEntity {
 
   @ManyToOne(() => Rol, { nullable: false })
   rol!: Rol;
-/*
+  /*
   @Property()
   localidadID!: number;
 */
-
 }

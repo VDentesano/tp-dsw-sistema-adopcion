@@ -1,0 +1,17 @@
+services:
+  mysql:
+    image: mysql:9.7
+    container_name: refugio-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: refugio
+      MYSQL_USER: dsw
+      MYSQL_PASSWORD: dsw
+    ports:
+      - "3306:3306"
+    volumes:
+      - refugio-data:/var/lib/mysql
+
+volumes:
+  refugio-data:

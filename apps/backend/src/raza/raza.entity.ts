@@ -3,7 +3,7 @@ import {
   Property,
   ManyToOne,
   OneToMany,
-} from "@mikro-orm/decorators/legacy";
+} from "@mikro-orm/decorators/es";
 
 import { Collection } from "@mikro-orm/core";
 
@@ -14,7 +14,7 @@ import { Mascota } from "../mascota/mascota.entity.js";
 @Entity()
 export class Raza extends BaseEntity {
 
-  @Property({ nullable: false, unique: true })
+  @Property({ type: 'string', nullable: false, unique: true })
   nombre!: string;
 
   @ManyToOne(() => Especie, { nullable: false })
