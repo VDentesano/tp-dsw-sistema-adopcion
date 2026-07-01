@@ -1,24 +1,30 @@
 # Propuesta TP DSW: Plataforma de Gestión de Refugios y Adopciones
 
 ## Grupo
+
 **Integrantes:**
+
 * 54915 - Dentesano, Valentino
 * 54714 - Giunta, Lautaro
 * 54914 - Taborda, Fausto
 * 54887 - Lagos, Franco
 
 **Repositorios:**
-* [Fullstack App](#) 
+
+* [Fullstack App](#)
 
 ---
 
 ## Tema
+
 ### Descripción
+
 Plataforma SaaS para la gestión integral de refugios de animales y adopciones responsables. El sistema permite administrar el ciclo de vida de las mascotas (ingreso, tratamiento, disponibilidad), procesar solicitudes de adopción dinámicas y llevar un seguimiento post-adopción. Está orientado a facilitar el trabajo de los voluntarios y asegurar el bienestar animal mediante estrictas reglas de negocio para la transición de estados de las mascotas, apoyándose en un sistema de auditoría y roles.
 
 ---
 
 ## Modelo de Datos (Diagrama ER)
+
 El modelo se basa en una arquitectura de roles para centralizar la gestión de usuarios, permitiendo que un mismo sistema administre refugios, voluntarios y adoptantes sin redundancia de datos.
 
 ```mermaid
@@ -144,6 +150,7 @@ erDiagram
         int RelacionadoID
     }
 ````
+
 ## Alcance Funcional
 
 A continuación, se detallan los requerimientos funcionales del sistema, estructurados según su prioridad técnica y complejidad. Este alcance fue definido en base a los procesos de negocio críticos del refugio, garantizando que los actores principales (Voluntarios y Adoptantes) puedan interactuar fluidamente a través de los casos de uso centrales: la gestión del estado de los animales y el ciclo completo de adopción.

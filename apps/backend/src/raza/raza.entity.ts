@@ -13,8 +13,7 @@ import { Mascota } from "../mascota/mascota.entity.js";
 
 @Entity()
 export class Raza extends BaseEntity {
-
-  @Property({ type: 'string', nullable: false, unique: true })
+  @Property({ type: "string", nullable: false, unique: true })
   nombre!: string;
 
   @ManyToOne(() => Especie, { nullable: false })
@@ -22,5 +21,4 @@ export class Raza extends BaseEntity {
 
   @OneToMany(() => Mascota, (mascota) => mascota.raza)
   mascotas = new Collection<Mascota>(this);
-
 }
