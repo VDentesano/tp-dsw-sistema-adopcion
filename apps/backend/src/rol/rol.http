@@ -1,2 +1,26 @@
-### GET ALL
-GET http://localhost:3000/api/roles
+@baseUrl = http://localhost:3000/api/roles
+
+### Listar todos los roles
+GET {{baseUrl}}
+
+### Traer un rol por id (cambiá el id)
+GET {{baseUrl}}/1
+
+### Crear un rol
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Voluntario"
+}
+
+### Modificar un rol (cambiá el id en la URL)
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "nombre": "Administrador"
+}
+
+### Eliminar un rol (cambiá el id en la URL)
+DELETE {{baseUrl}}/1

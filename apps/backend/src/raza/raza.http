@@ -1,0 +1,29 @@
+@baseUrl = http://localhost:3000/api/razas
+
+### Listar todas las razas (la especie viene anidada gracias al populate)
+GET {{baseUrl}}
+
+### Traer una raza por id (cambiá el id)
+GET {{baseUrl}}/1
+
+### Crear una raza
+# Ojo: la especie con ese id tiene que existir. Si no, creá una primero en especie.http
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Labrador",
+  "especie": 1
+}
+
+### Modificar una raza (podés cambiar el nombre y/o la especie)
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "nombre": "Labrador Retriever",
+  "especie": 1
+}
+
+### Eliminar una raza (cambiá el id en la URL)
+DELETE {{baseUrl}}/1

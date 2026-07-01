@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:3000/api/especies
+
+### Listar todas las especies
+GET {{baseUrl}}
+
+### Traer una especie por id (cambiá el id)
+GET {{baseUrl}}/1
+
+### Crear una especie
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Perro"
+}
+
+### Modificar una especie (cambiá el id en la URL)
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "nombre": "Gato"
+}
+
+### Eliminar una especie (cambiá el id en la URL)
+DELETE {{baseUrl}}/1
