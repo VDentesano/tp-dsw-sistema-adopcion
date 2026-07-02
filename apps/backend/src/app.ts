@@ -4,6 +4,7 @@ import { RequestContext } from "@mikro-orm/mysql";
 import { rolRouter } from "./rol/rol.routes.js";
 import { especieRouter } from "./especie/especie.routes.js";
 import { razaRouter } from "./raza/raza.routes.js";
+import { usuarioRouter } from "./usuario/usuario.routes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use((req, res, next) => {
 app.use("/api/roles", rolRouter);
 app.use("/api/especies", especieRouter);
 app.use("/api/razas", razaRouter);
+app.use("/api/usuarios", usuarioRouter);
 
 await syncSchema(); //no usar en produccion
 

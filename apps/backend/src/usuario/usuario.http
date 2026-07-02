@@ -1,0 +1,60 @@
+@baseUrl = http://localhost:3000/api/usuarios
+
+### Listar todos los usuarios
+GET {{baseUrl}}
+
+
+# Ojo: el rol con ese id tiene que existir. Si no, creá uno primero en rol.http
+### 
+# @name createUsuario
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Juan",
+  "apellido": "Perez",
+  "email": "juan.perez@example.com",
+  "password": "123456",
+  "telefono": "123456789",
+  "rol": 3
+}
+
+
+
+### ID
+@id = {{createUsuario.response.body.data.id}}
+
+### GET ONE
+GET {{baseUrl}}/{{id}}
+
+
+### PUT
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "nombre": "Juancito",
+  "apellido": "nuevo",
+  "email": "juancito.nuevo@example.com",
+  "telefono": "987654321"
+}
+
+
+### POST USUARIO TO DELETE
+# @name createUsuarioToDelete
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Usuario",
+  "apellido": "Eliminar",
+  "email": "usuarioaborrar@example.com",
+  "telefono": "555555555",
+  "password": "123456",
+  "rol": 3
+}
+
+### ID TO DELETE
+@idToDelete = {{createUsuarioToDelete.response.body.data.id}}
+### DELETE
+DELETE {{baseUrl}}/{{idToDelete}}
