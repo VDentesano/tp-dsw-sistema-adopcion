@@ -16,7 +16,7 @@ Content-Type: application/json
   "email": "juan.perez@example.com",
   "password": "123456",
   "telefono": "123456789",
-  "rol": 3
+  "rol": 7
 }
 
 
@@ -51,7 +51,7 @@ Content-Type: application/json
   "email": "usuarioaborrar@example.com",
   "telefono": "555555555",
   "password": "123456",
-  "rol": 3
+  "rol": 7
 }
 
 ### ID TO DELETE
