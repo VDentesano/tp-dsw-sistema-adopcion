@@ -20,9 +20,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@mikro-orm/core": "^7.1.4",
+    "@mikro-orm/core": "^7.1.5",
     "@mikro-orm/decorators": "^7.1.5",
-    "@mikro-orm/mysql": "^7.1.4",
+    "@mikro-orm/mysql": "^7.1.5",
     "@mikro-orm/sql-highlighter": "^1.0.1",
     "@proyecto/types": "workspace:*",
     "express": "^5.2.1",
