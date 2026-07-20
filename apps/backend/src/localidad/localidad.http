@@ -1,0 +1,25 @@
+@baseUrl = http://localhost:3000/api/localidad
+### GET ALL
+GET {{baseUrl}}
+
+### POST
+POST {{baseUrl}}
+Content-Type:application/json
+
+{
+  "nombre": "Rosario"
+}
+
+### GET ONE
+GET {{baseUrl}}/1
+
+### PUT
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "nombre": "Gualeguay"
+}
+
+### REMOVE
+DELETE {{baseUrl}}/1
