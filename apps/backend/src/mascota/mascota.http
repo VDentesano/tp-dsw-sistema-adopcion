@@ -1,0 +1,27 @@
+@baseUrl = http://localhost:3000/api/mascota
+### GET ALL
+GET {{baseUrl}}
+
+### POST
+POST {{baseUrl}}
+Content-Type:application/json
+
+{
+  "nombre": "umma",
+  "raza": 2,
+  "refugio": 3 
+}
+
+### GET ONE
+GET {{baseUrl}}/2
+
+### PUT
+PUT {{baseUrl}}/2
+Content-Type: application/json
+
+{
+  "nombre": "pape"
+}
+
+### REMOVE
+DELETE {{baseUrl}}/1
