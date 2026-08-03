@@ -16,7 +16,10 @@ async function findAll(req: Request, res: Response) {
 async function findOne(req: Request, res: Response) {
   try{
     const id = Number(req.params.id)
-    const localidad = await em.findOneOrFail(Localidad, {id})
+    const localidad = await em.findOne(Localidad, {id})
+    if(!localidad){
+      return res.status(404).json({message: 'no existe localidad'})
+    }
     res.status(200).json({message:'found localidad', data: localidad})
   }catch(error:any){
     res.status(500).json({message: error.message})
