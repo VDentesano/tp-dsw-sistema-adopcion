@@ -27,7 +27,7 @@ async function add(req: Request, res: Response) {
   try{
     const localidad = em.create(Localidad, req.body)
     await em.flush()
-    res.status(201).json({message:'localidad created', dat: localidad})
+    res.status(201).json({message:'localidad created', data: localidad})
   } catch(error:any){
     res.status(500).json({message: error.message})
   }
@@ -36,7 +36,10 @@ async function add(req: Request, res: Response) {
 async function update(req: Request, res: Response) {
   try{
     const id = Number(req.params.id)
-    const localidad = em.getReference(Localidad, id)
+    const localidad = await em.findOne(Localidad, id)
+    if(!localidad){
+      return res.status(404).json({message: 'no existe localidad'})
+    }
     em.assign(localidad, req.body)
     await em.flush()
     res.status(200).json({message: 'localidad modificada correctamente', data: localidad})
@@ -48,7 +51,10 @@ async function update(req: Request, res: Response) {
 async function remove(req: Request, res: Response) {
   try{
     const id = Number(req.params.id)
-    const localidad = em.getReference(Localidad, id)
+    const localidad = await em.findOne(Localidad, id)
+    if(!localidad){
+      return res.status(404).json({message: 'no existe localidad'})
+    }
     em.remove(localidad)
     await em.flush()
     res.status(200).json({message:'localidad deleted'})

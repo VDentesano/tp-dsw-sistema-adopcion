@@ -7,7 +7,7 @@ POST {{baseUrl}}
 Content-Type:application/json
 
 {
-  "nombre": "Rosario"
+  "nombre": "Rosario2"
 }
 
 ### GET ONE
