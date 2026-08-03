@@ -6,6 +6,8 @@ import { especieRouter } from "./especie/especie.routes.js";
 import { razaRouter } from "./raza/raza.routes.js";
 import { usuarioRouter } from "./usuario/usuario.routes.js";
 import { localidadRouter } from "./localidad/localidad.routes.js";
+import { mascotaRouter } from "./mascota/mascota.routes.js";
+import { refugioRouter } from "./refugio/refugio.routes.js";
 
 const app = express();
 
@@ -20,7 +22,9 @@ app.use("/api/roles", rolRouter);
 app.use("/api/especies", especieRouter);
 app.use("/api/razas", razaRouter);
 app.use("/api/usuarios", usuarioRouter);
-app.use("/api/localidad", localidadRouter)
+app.use("/api/localidad", localidadRouter);
+app.use("/api/mascota",mascotaRouter);
+app.use("/api/refugio",refugioRouter);
 
 await syncSchema(); //no usar en produccion
 
