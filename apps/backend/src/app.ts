@@ -8,6 +8,7 @@ import { usuarioRouter } from "./usuario/usuario.routes.js";
 import { localidadRouter } from "./localidad/localidad.routes.js";
 import { mascotaRouter } from "./mascota/mascota.routes.js";
 import { refugioRouter } from "./refugio/refugio.routes.js";
+import { solicitud_adopcion_router } from "./solicitud_adopcion/solicitud_adopcion.routes.js";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/usuarios", usuarioRouter);
 app.use("/api/localidad", localidadRouter);
 app.use("/api/mascota",mascotaRouter);
 app.use("/api/refugio",refugioRouter);
+app.use("api/solicitud_adopcion", solicitud_adopcion_router);
 
 await syncSchema(); //no usar en produccion
 

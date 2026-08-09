@@ -1,8 +1,10 @@
-import { Entity, Property, ManyToOne } from "@mikro-orm/decorators/es";
+import { Entity, Property, ManyToOne, OneToMany } from "@mikro-orm/decorators/es";
 
 import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Raza } from "../raza/raza.entity.js";
 import { Refugio } from "../refugio/refugio.entity.js";
+import { Solicitud_Adopcion } from "../solicitud_adopcion/solicitud_adopcion.entity.js";
+import { Collection } from "@mikro-orm/core";
 
 @Entity()
 export class Mascota extends BaseEntity {
@@ -29,4 +31,8 @@ export class Mascota extends BaseEntity {
 
   @ManyToOne(() => Refugio, { nullable: false })
   refugio!: Refugio;
+
+  @OneToMany(() => Solicitud_Adopcion, (solicitud_adopcion) => solicitud_adopcion.mascota)
+  solicitudes_adopcion= new Collection<Solicitud_Adopcion> (this)
+
 }

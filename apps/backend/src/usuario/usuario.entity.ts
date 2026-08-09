@@ -1,7 +1,9 @@
-import { Entity, Property, ManyToOne } from "@mikro-orm/decorators/es";
+import { Entity, Property, ManyToOne, OneToMany } from "@mikro-orm/decorators/es";
 import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Refugio } from "../refugio/refugio.entity.js";
 import { Rol } from "../rol/rol.entity.js";
+import { Solicitud_Adopcion } from "../solicitud_adopcion/solicitud_adopcion.entity.js";
+import { Collection } from "@mikro-orm/core";
 
 @Entity()
 export class Usuario extends BaseEntity {
@@ -29,4 +31,6 @@ export class Usuario extends BaseEntity {
   @Property()
   localidadID!: number;
 */
+  @OneToMany(()=>Solicitud_Adopcion, (solicitud_adopcion)=> solicitud_adopcion.usuario)
+    solicitudes = new Collection<Solicitud_Adopcion>(this)
 }
