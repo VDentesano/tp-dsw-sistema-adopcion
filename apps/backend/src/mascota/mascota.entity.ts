@@ -6,6 +6,9 @@ import { Refugio } from "../refugio/refugio.entity.js";
 import { Solicitud_Adopcion } from "../solicitud_adopcion/solicitud_adopcion.entity.js";
 import { Collection } from "@mikro-orm/core";
 
+/** Estado en el que una mascota puede ser solicitada para adopción. */
+export const MASCOTA_DISPONIBLE = "Disponible";
+
 @Entity()
 export class Mascota extends BaseEntity {
   @Property({ type: "string", nullable: false })

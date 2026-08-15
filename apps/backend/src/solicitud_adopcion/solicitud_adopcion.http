@@ -1,0 +1,119 @@
+@baseUrl = http://localhost:3000/api/solicitud_adopcion
+
+### Listar todas las solicitudes
+GET {{baseUrl}}
+
+### Listar filtrando por estado (Pendiente | Aprobada | Rechazada)
+GET {{baseUrl}}?estado=Pendiente
+
+### Listar solicitudes de un usuario
+GET {{baseUrl}}?usuario=9
+
+### Listar solicitudes de una mascota
+GET {{baseUrl}}?mascota=1
+
+
+# Ojo: la mascota tiene que existir y estar en estado "Disponible",
+# y el usuario tiene que existir. Si no, crealos en mascota.http y usuario.http
+###
+# @name createSolicitud
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "usuario": 13,
+  "respuestasFormulario": {
+    "vivienda": "casa",
+    "patio": false,
+    "horas_solo": 6
+  }
+}
+
+
+### ID
+@id = {{createSolicitud.response.body.data.id}}
+
+### GET ONE
+GET {{baseUrl}}/{{id}}
+
+
+### PUT (solo se pueden modificar estado y respuestasFormulario)
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "estado": "Rechazada",
+  "respuestasFormulario": {
+    "vivienda": "depto"
+  }
+}
+
+
+### DELETE
+DELETE {{baseUrl}}/{{id}}
+
+
+# ------- casos de error, para verificar las validaciones -------
+
+### POST duplicado: repetir dos veces -> la segunda da 409
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 1,
+  "usuario": 9,
+  "respuestasFormulario": { "vivienda": "casa" }
+}
+
+### POST con estado inyectado -> lo ignora, la crea Pendiente
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "usuario": 9,
+  "estado": "Aprobada",
+  "respuestasFormulario": { "vivienda": "depto" }
+}
+
+### POST a mascota no disponible -> 409
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 2,
+  "usuario": 9,
+  "respuestasFormulario": { "vivienda": "casa" }
+}
+
+### POST sin ids validos -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": true,
+  "usuario": 9,
+  "respuestasFormulario": {}
+}
+
+### POST con formulario invalido (no puede ser array ni tener objetos anidados) -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 1,
+  "usuario": 9,
+  "respuestasFormulario": [1, 2]
+}
+
+### GET con estado invalido -> 400
+GET {{baseUrl}}?estado=Cancelada
+
+### PUT con estado invalido -> 400
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "estado": "Cancelada"
+}

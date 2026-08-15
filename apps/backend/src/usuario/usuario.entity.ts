@@ -16,7 +16,7 @@ export class Usuario extends BaseEntity {
   @Property({ type: 'string', unique: true })
   email!: string;
 
-  @Property({ type: 'string' })
+   @Property({ type: 'string', hidden: true }) // no se serializa en las respuestas de la API
   password!: string;
 
   @Property({ type: 'string' })
