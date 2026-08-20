@@ -1,0 +1,88 @@
+.pagina {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 0.85rem clamp(1rem, 4vw, 2.5rem);
+  background: var(--pasto);
+  color: #f2f1e8;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #fdfcf6;
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.link,
+.activo {
+  color: #d9e2d3;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+}
+
+.link:hover {
+  color: #fdfcf6;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.activo {
+  color: var(--pasto-oscuro);
+  background: #f2f1e8;
+}
+
+.sesion {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: #cdd8c7;
+  border: 1px dashed rgba(242, 241, 232, 0.45);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  white-space: nowrap;
+}
+
+.contenido {
+  flex: 1;
+  width: min(64rem, 100%);
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem) 3rem;
+}
+
+.footer {
+  padding: 1rem clamp(1rem, 4vw, 2.5rem);
+  border-top: 1px solid var(--linea);
+  color: var(--tinta-suave);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 560px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+  .sesion {
+    order: 2;
+  }
+  .nav {
+    order: 3;
+    width: 100%;
+  }
+}

@@ -1,0 +1,25 @@
+.error,
+.info,
+.cargando {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radio);
+  font-size: 0.95rem;
+}
+
+.error {
+  background: var(--tono-rojo-fondo);
+  color: var(--tono-rojo);
+  border: 1px solid currentColor;
+}
+
+.info {
+  background: var(--carta);
+  color: var(--tinta-suave);
+  border: 1px dashed var(--linea);
+}
+
+.cargando {
+  color: var(--tinta-suave);
+  padding-left: 0;
+}

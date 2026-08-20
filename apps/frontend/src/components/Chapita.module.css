@@ -1,0 +1,45 @@
+/* Medalla de collar: redondeada del lado del agujero, con el agujero "perforado". */
+.chapita {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.15em 0.8em 0.15em 0.55em;
+  border-radius: 999px 8px 8px 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border: 1.5px solid currentColor;
+}
+
+/* el agujero por donde pasa la argolla */
+.chapita::before {
+  content: "";
+  width: 0.42em;
+  height: 0.42em;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  background: var(--papel);
+  flex: none;
+}
+
+.verde {
+  color: var(--tono-verde);
+  background: var(--tono-verde-fondo);
+}
+.ambar {
+  color: var(--tono-ambar);
+  background: var(--tono-ambar-fondo);
+}
+.azul {
+  color: var(--tono-azul);
+  background: var(--tono-azul-fondo);
+}
+.rojo {
+  color: var(--tono-rojo);
+  background: var(--tono-rojo-fondo);
+}
+.neutro {
+  color: var(--tono-neutro);
+  background: var(--tono-neutro-fondo);
+}

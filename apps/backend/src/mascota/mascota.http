@@ -7,9 +7,9 @@ POST {{baseUrl}}
 Content-Type:application/json
 
 {
-  "nombre": "umma",
-  "raza": 2,
-  "refugio": 3 
+  "nombre": "pape",
+  "raza": 1,
+  "refugio": 1
 }
 
 ### GET ONE

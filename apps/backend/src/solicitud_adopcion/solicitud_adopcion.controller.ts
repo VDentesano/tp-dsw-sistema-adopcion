@@ -5,6 +5,7 @@ import { orm } from "../shared/db/orm.js"
 import { ESTADOS_SOLICITUD, Solicitud_Adopcion } from "./solicitud_adopcion.entity.js"
 import { MASCOTA_DISPONIBLE, Mascota } from "../mascota/mascota.entity.js"
 import { Usuario } from "../usuario/usuario.entity.js"
+import { Pregunta_Formulario } from "../pregunta/pregunta.entity.js"
 
 
 
@@ -152,6 +153,24 @@ async function add(req: Request, res: Response){
     const usuario = await em.findOne(Usuario, {id: usuarioId})
     if(!usuario){
       return res.status(404).json({message: 'usuario no encontrado'})
+    }
+
+    /*
+      RN: hay que responder todas las preguntas obligatorias (y activas) que definio
+      el refugio de la mascota. Las respuestas se guardan como {preguntaId: respuesta}.
+      Un string vacio no cuenta como respuesta; false o 0 si (son respuestas validas
+      de una pregunta booleana o numerica).
+    */
+    const obligatorias = await em.find(Pregunta_Formulario, {refugio: mascota.refugio, activa: true, obligatoria: true})
+    const sinResponder = obligatorias.filter((pregunta) => {
+      const respuesta = respuestasFormulario[String(pregunta.id)]
+      return respuesta === undefined || (typeof respuesta === 'string' && respuesta.trim() === '')
+    })
+    if(sinResponder.length > 0){
+      return res.status(400).json({
+        message: 'faltan responder preguntas obligatorias del refugio',
+        data: sinResponder.map((pregunta) => ({id: pregunta.id, texto: pregunta.texto})),
+      })
     }
 
     // un mismo usuario no puede tener dos postulaciones abiertas para la misma mascota

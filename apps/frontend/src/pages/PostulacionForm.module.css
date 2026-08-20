@@ -1,0 +1,146 @@
+.marco {
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.volver {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.volver:hover {
+  text-decoration: underline;
+}
+
+.titulo {
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  font-weight: 700;
+}
+
+.bajada {
+  margin: 0.5rem 0 1.75rem;
+  color: var(--tinta-suave);
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+}
+
+.etiqueta {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+/* un legend por defecto "flota" sobre el borde del fieldset: lo metemos adentro de la card */
+.campo legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 0.4rem;
+}
+
+fieldset.campo {
+  min-width: 0;
+}
+
+.opcional {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+}
+
+.campo input[type="text"],
+.campo input[type="number"],
+.campo select {
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.campo input:focus-visible,
+.campo select:focus-visible {
+  outline: 2px solid var(--laton);
+  outline-offset: 1px;
+}
+
+.radios {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.radio input {
+  accent-color: var(--pasto);
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.enviar {
+  align-self: start;
+  padding: 0.75rem 1.8rem;
+  background: var(--pasto);
+  color: #fdfcf6;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.enviar:hover:not(:disabled) {
+  background: var(--pasto-oscuro);
+}
+
+.enviar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.confirmacion {
+  max-width: 32rem;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-top: 5px solid var(--pasto);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.tituloConfirmacion {
+  font-size: 1.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.accionesConfirmacion {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+}

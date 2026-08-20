@@ -1,0 +1,130 @@
+@baseUrl = http://localhost:3000/api/preguntas
+
+### Listar todas las preguntas
+GET {{baseUrl}}
+
+### Listar las preguntas activas de un refugio (lo que consume el formulario de postulacion)
+GET {{baseUrl}}?refugio=1&activa=true
+
+
+# Ojo: el refugio tiene que existir, si no crealo en refugio.http
+###
+# @name createPregunta
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "refugio": 1,
+  "texto": "¿En qué tipo de vivienda vivís?",
+  "tipo": "opcion",
+  "opciones": ["casa", "departamento", "campo"],
+  "obligatoria": true,
+  "orden": 1
+}
+
+### Otra: booleana
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "refugio": 1,
+  "texto": "¿Tenés patio?",
+  "tipo": "booleano",
+  "obligatoria": true,
+  "orden": 2
+}
+
+### Otra: numerica, no obligatoria
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "refugio": 1,
+  "texto": "¿Cuántas horas por día está sola la mascota?",
+  "tipo": "numero",
+  "orden": 3
+}
+
+
+### ID
+@id = {{createPregunta.response.body.data.id}}
+
+### GET ONE
+GET {{baseUrl}}/{{id}}
+
+
+### PUT (regla de inmutabilidad: desactiva esta y crea una nueva con los cambios)
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "texto": "¿En qué tipo de vivienda vivís actualmente?"
+}
+
+### PUT sobre la ya desactivada -> 409
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "texto": "no deberia poder"
+}
+
+
+### DELETE (soft delete: solo pone activa=false)
+DELETE {{baseUrl}}/{{id}}
+
+
+# ------- casos de error, para verificar las validaciones -------
+
+### POST sin refugio -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "texto": "¿Tenés otras mascotas?",
+  "tipo": "booleano"
+}
+
+### POST con tipo invalido -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "refugio": 1,
+  "texto": "¿Tenés otras mascotas?",
+  "tipo": "checkbox"
+}
+
+### POST tipo opcion sin opciones -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "refugio": 1,
+  "texto": "¿Tamaño preferido?",
+  "tipo": "opcion"
+}
+
+### POST con opciones en una pregunta que no es de tipo opcion -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "refugio": 1,
+  "texto": "¿Tenés patio?",
+  "tipo": "booleano",
+  "opciones": ["si", "no"]
+}
+
+### POST a refugio inexistente -> 404
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "refugio": 9999,
+  "texto": "¿Tenés patio?",
+  "tipo": "booleano"
+}
+
+### GET con activa invalida -> 400
+GET {{baseUrl}}?activa=quizas

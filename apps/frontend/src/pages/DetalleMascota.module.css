@@ -1,0 +1,103 @@
+.volver {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.volver:hover {
+  text-decoration: underline;
+}
+
+.detalle {
+  display: grid;
+  grid-template-columns: minmax(16rem, 26rem) 1fr;
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+  align-items: start;
+}
+
+.fotoMarco {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radio);
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  box-shadow: var(--sombra);
+}
+
+.filaTitulo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.nombre {
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  font-weight: 700;
+}
+
+.ficha {
+  margin: 1.25rem 0 0;
+  border-top: 1px solid var(--linea);
+}
+
+.filaFicha {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.filaFicha dt {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--tinta-suave);
+}
+
+.filaFicha dd {
+  margin: 0;
+}
+
+.refugio {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-left: 4px solid var(--laton);
+  border-radius: var(--radio);
+}
+
+.refugioTitulo {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.refugioDato {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--tinta-suave);
+}
+
+.postular {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.6rem;
+  background: var(--pasto);
+  color: #fdfcf6;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 999px;
+  transition: background 150ms ease;
+}
+
+.postular:hover {
+  background: var(--pasto-oscuro);
+}
+
+@media (max-width: 720px) {
+  .detalle {
+    grid-template-columns: 1fr;
+  }
+}

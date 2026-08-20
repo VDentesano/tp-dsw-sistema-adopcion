@@ -10,6 +10,7 @@ import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Usuario } from "../usuario/usuario.entity.js";
 import { Mascota } from "../mascota/mascota.entity.js";
 import { Localidad } from "../localidad/localidad.entity.js";
+import { Pregunta_Formulario } from "../pregunta/pregunta.entity.js";
 
 
 @Entity()
@@ -34,4 +35,8 @@ export class Refugio extends BaseEntity {
 
   @ManyToOne(()=> Localidad)
   localidad!: Localidad;
+
+  // preguntas del formulario dinamico de postulacion que definio este refugio
+  @OneToMany(() => Pregunta_Formulario, (pregunta) => pregunta.refugio)
+  preguntas = new Collection<Pregunta_Formulario>(this);
 }

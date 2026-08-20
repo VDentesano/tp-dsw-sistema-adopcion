@@ -107,6 +107,18 @@ Content-Type: application/json
   "respuestasFormulario": [1, 2]
 }
 
+### POST sin responder las preguntas obligatorias del refugio -> 400
+# (para que falle tiene que haber preguntas con obligatoria=true y activa=true
+#  en el refugio de la mascota; crealas en pregunta.http)
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "usuario": 13,
+  "respuestasFormulario": {}
+}
+
 ### GET con estado invalido -> 400
 GET {{baseUrl}}?estado=Cancelada
 
