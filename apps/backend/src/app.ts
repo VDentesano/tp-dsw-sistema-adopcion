@@ -19,6 +19,12 @@ app.use(cors({ origin: "http://localhost:5173" }));
 
 app.use(express.json());//luego de los middlewares base
 
+// en Express 5 req.body queda undefined si el request no trae JSON; lo dejamos en {} para que los sanitize respondan 400 y no rompan
+app.use((req, res, next) => {
+  req.body ??= {};
+  next();
+});
+
 app.use((req, res, next) => {
   RequestContext.create(orm.em, next);
 });

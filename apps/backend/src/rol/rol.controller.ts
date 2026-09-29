@@ -1,8 +1,18 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
+import { esTextoValido } from "../shared/sanitizacion.js";
 import { Rol } from "./rol.entity.js";
 
 const em = orm.em;
+
+// rol solo tiene nombre, asi que el mismo middleware sirve para el alta y la modificacion
+function sanitizeRolInput(req: Request, res: Response, next: NextFunction) {
+  if (!esTextoValido(req.body.nombre)) {
+    return res.status(400).json({ message: "nombre es obligatorio y no puede estar vacio" });
+  }
+  req.body.sanitizedInput = { nombre: req.body.nombre.trim() };
+  next();
+}
 
 async function findAll(req: Request, res: Response) {
   try {
@@ -28,7 +38,7 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    em.create(Rol, req.body);
+    em.create(Rol, req.body.sanitizedInput);
     await em.flush();
     res.status(201).json({ message: "Rol agregado" });
   } catch (error) {
@@ -42,7 +52,7 @@ async function update(req: Request, res: Response) {
   if (!rol) {
     return res.status(404).json({ message: "Rol no encontrado" });
   }
-  em.assign(rol, req.body);
+  em.assign(rol, req.body.sanitizedInput);
   try {
     await em.flush();
     res.status(200).json({ message: "Rol actualizado" });
@@ -64,4 +74,4 @@ async function remove(req: Request, res: Response) {
   }
 }
 
-export { findAll, findOne, add, update, remove };
+export { sanitizeRolInput, findAll, findOne, add, update, remove };

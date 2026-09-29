@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express"
 import type { FilterQuery } from "@mikro-orm/core"
 import type { NuevaPreguntaDTO, TipoPregunta } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
+import { esTextoValido, parsearId } from "../shared/sanitizacion.js"
 import { Pregunta_Formulario, TIPOS_PREGUNTA } from "./pregunta.entity.js"
 import { Refugio } from "../refugio/refugio.entity.js"
 
@@ -23,23 +24,11 @@ function esTipoValido(valor: unknown): valor is TipoPregunta{
   return TIPOS_PREGUNTA.some((tipo) => tipo === valor)
 }
 
-function esTextoValido(valor: unknown): valor is string{
-  return typeof valor === 'string' && valor.trim().length > 0
-}
-
 // las opciones de un select: al menos dos, todas strings no vacios
 function sonOpcionesValidas(valor: unknown): valor is string[]{
   return Array.isArray(valor)
     && valor.length >= 2
     && valor.every((opcion) => typeof opcion === 'string' && opcion.trim().length > 0)
-}
-
-function parsearId(valor: unknown): number | undefined{
-  if(typeof valor !== 'string' && typeof valor !== 'number'){
-    return undefined
-  }
-  const id = Number(valor)
-  return Number.isInteger(id) && id > 0 ? id : undefined
 }
 
 function mensajeDeError(error: unknown): string{

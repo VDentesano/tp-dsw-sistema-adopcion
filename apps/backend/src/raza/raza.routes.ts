@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { findAll, findOne, add, update, remove } from "./raza.controller.js";
+import { findAll, findOne, add, update, remove, sanitizeRazaInput, sanitizeRazaUpdateInput } from "./raza.controller.js";
 
 export const razaRouter: Router = Router();
 
 razaRouter.get("/", findAll);
 razaRouter.get("/:id", findOne);
-razaRouter.post("/", add);
-razaRouter.put("/:id", update);
+razaRouter.post("/", sanitizeRazaInput, add);
+razaRouter.put("/:id", sanitizeRazaUpdateInput, update);
 razaRouter.delete("/:id", remove);

@@ -1,8 +1,18 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
+import { esTextoValido } from "../shared/sanitizacion.js";
 import { Especie } from "./especie.entity.js";
 
 const em = orm.em;
+
+// especie solo tiene nombre, asi que el mismo middleware sirve para el alta y la modificacion
+function sanitizeEspecieInput(req: Request, res: Response, next: NextFunction) {
+  if (!esTextoValido(req.body.nombre)) {
+    return res.status(400).json({ message: "nombre es obligatorio y no puede estar vacio" });
+  }
+  req.body.sanitizedInput = { nombre: req.body.nombre.trim() };
+  next();
+}
 
 async function findAll(req: Request, res: Response) {
   try {
@@ -29,7 +39,7 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    em.create(Especie, req.body);
+    em.create(Especie, req.body.sanitizedInput);
     await em.flush();
     res.status(201).json({ message: "Especie agregada" });
   } catch (error) {
@@ -44,7 +54,7 @@ async function update(req: Request, res: Response) {
     return;
   }
   try {
-    em.assign(especie, req.body);
+    em.assign(especie, req.body.sanitizedInput);
     await em.flush();
     res.status(200).json({ message: "Especie actualizada" });
   } catch (error) {
@@ -66,4 +76,4 @@ async function remove(req: Request, res: Response) {
   }
 }
 
-export { findAll, findOne, add, update, remove };
+export { sanitizeEspecieInput, findAll, findOne, add, update, remove };

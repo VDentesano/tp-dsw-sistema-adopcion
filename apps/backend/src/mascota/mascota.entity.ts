@@ -26,8 +26,9 @@ export class Mascota extends BaseEntity {
   @Property({ type: "string", nullable: false })
   nombre!: string;
 
+  // una columna date (sin hora) MikroORM la maneja como string YYYY-MM-DD, no como Date
   @Property({ type: "date", nullable: true })
-  fechaDeNac?: Date;
+  fechaDeNac?: string;
 
   @Property({ type: "string", nullable: true })
   tamano?: string;

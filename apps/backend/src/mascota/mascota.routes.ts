@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { add, findAll, findOne, remove, update } from "./mascota.controller.js";
+import { add, findAll, findOne, remove, sanitizeMascotaInput, sanitizeMascotaUpdateInput, update } from "./mascota.controller.js";
 
 export const mascotaRouter: Router= Router();
 
 mascotaRouter.get("/", findAll);
 mascotaRouter.get("/:id",findOne);
-mascotaRouter.post("/",add);
-mascotaRouter.put("/:id",update);
+mascotaRouter.post("/", sanitizeMascotaInput, add);
+mascotaRouter.put("/:id", sanitizeMascotaUpdateInput, update);
 mascotaRouter.delete("/:id", remove);

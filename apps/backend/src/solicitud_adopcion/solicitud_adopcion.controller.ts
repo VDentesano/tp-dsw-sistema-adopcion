@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express"
 import type { FilterQuery } from "@mikro-orm/core"
 import type { EstadoSolicitud, NuevaSolicitudDTO, RespuestasFormulario } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
+import { parsearId } from "../shared/sanitizacion.js"
 import { ESTADOS_SOLICITUD, Solicitud_Adopcion } from "./solicitud_adopcion.entity.js"
 import { MASCOTA_DISPONIBLE, Mascota } from "../mascota/mascota.entity.js"
 import { Usuario } from "../usuario/usuario.entity.js"
@@ -32,15 +33,6 @@ function esFormularioValido(valor: unknown): valor is RespuestasFormulario{
   return Object.values(valor).every((respuesta) =>
     typeof respuesta === 'string' || typeof respuesta === 'number' || typeof respuesta === 'boolean'
   )
-}
-
-// devuelve el id como entero positivo, o undefined si no es un id valido
-function parsearId(valor: unknown): number | undefined{
-  if(typeof valor !== 'string' && typeof valor !== 'number'){
-    return undefined
-  }
-  const id = Number(valor)
-  return Number.isInteger(id) && id > 0 ? id : undefined
 }
 
 // en un catch el error es unknown: solo podemos leer .message si realmente es un Error, esto habria que aplicarlo en los demas controladores tambien
