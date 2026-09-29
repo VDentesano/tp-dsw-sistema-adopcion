@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
-import { esTextoValido } from "../shared/sanitizacion.js";
+import { responderError } from "../shared/errores.js";
+import { esTextoValido, parsearId } from "../shared/sanitizacion.js";
 import { Especie } from "./especie.entity.js";
 
 const em = orm.em;
@@ -19,13 +20,17 @@ async function findAll(req: Request, res: Response) {
     const especies = await em.find(Especie, {});
     res.status(200).json({ message: "Especies encontradas", data: especies });
   } catch (error) {
-    res.status(500).json({ message: "Error al encontrar especies", error });
+    responderError(res, error);
   }
 }
 
 async function findOne(req: Request, res: Response) {
-  const id = Number(req.params.id);
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      res.status(400).json({ message: "id invalido" });
+      return;
+    }
     const especie = await em.findOne(Especie, { id });
     if (!especie) {
       res.status(404).json({ message: "Especie no encontrada" });
@@ -33,7 +38,7 @@ async function findOne(req: Request, res: Response) {
     }
     res.status(200).json({ message: "Especie encontrada", data: especie });
   } catch (error) {
-    res.status(500).json({ message: "Error al encontrar especie", error });
+    responderError(res, error);
   }
 }
 
@@ -43,36 +48,46 @@ async function add(req: Request, res: Response) {
     await em.flush();
     res.status(201).json({ message: "Especie agregada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al agregar especie", error });
+    responderError(res, error);
   }
 }
 
 async function update(req: Request, res: Response) {
-  const especie = await em.findOne(Especie, Number(req.params.id));
-  if (!especie) {
-    res.status(404).json({ message: "Especie no encontrada" });
-    return;
-  }
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      res.status(400).json({ message: "id invalido" });
+      return;
+    }
+    const especie = await em.findOne(Especie, { id });
+    if (!especie) {
+      res.status(404).json({ message: "Especie no encontrada" });
+      return;
+    }
     em.assign(especie, req.body.sanitizedInput);
     await em.flush();
     res.status(200).json({ message: "Especie actualizada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar especie", error });
+    responderError(res, error);
   }
 }
 
 async function remove(req: Request, res: Response) {
-  const especie = await em.findOne(Especie, Number(req.params.id));
-  if (!especie) {
-    res.status(404).json({ message: "Especie no encontrada" });
-    return;
-  }
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      res.status(400).json({ message: "id invalido" });
+      return;
+    }
+    const especie = await em.findOne(Especie, { id });
+    if (!especie) {
+      res.status(404).json({ message: "Especie no encontrada" });
+      return;
+    }
     await em.remove(especie).flush();
     res.status(200).json({ message: "Especie eliminada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al eliminar especie", error });
+    responderError(res, error);
   }
 }
 

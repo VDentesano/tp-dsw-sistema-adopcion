@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
+import { responderError } from "../shared/errores.js";
 import { camposFaltantes, esEmailValido, esTextoValido, parsearId } from "../shared/sanitizacion.js";
 import { Usuario } from "./usuario.entity.js";
 
@@ -92,7 +93,7 @@ async function findAll(req: Request, res: Response) {
     const usuarios = await em.find( Usuario, {}, {populate: ['rol', 'refugio'] });
     res.status(200).json({ message: 'Usuarios encontrados', data: usuarios });
   } catch (error) {
-    res.status(500).json({ message: 'Error al encontrar usuarios', error});
+    responderError(res, error);
   }
 }
 
@@ -110,7 +111,7 @@ async function findOne(req: Request, res: Response) {
     }
     res.status(200).json({message: "Usuario encontrado", data: usuario,});
   } catch (error) {
-    res.status(500).json({message: "Error al encontrar usuario", error,});
+    responderError(res, error);
   }
 }
 
@@ -121,7 +122,7 @@ async function add(req: Request, res: Response) {
     await em.flush();
     res.status(201).json({ message: 'Usuario agregado', data: usuario });
   } catch (error) {
-    res.status(500).json({ message: 'Error al agregar usuario', error});
+    responderError(res, error);
   }
 }
 
@@ -140,7 +141,7 @@ async function update(req: Request, res: Response) {
     await em.flush();
     res.status(200).json({ message: 'Usuario actualizado', data: usuario });
   } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar usuario', error });
+    responderError(res, error);
   }
 }
 
@@ -159,7 +160,7 @@ async function remove(req: Request, res: Response) {
     await em.remove(usuario).flush();
     res.status(200).json({ message: 'Usuario eliminado' });
   } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar usuario', error });
+    responderError(res, error);
   }
 }
 

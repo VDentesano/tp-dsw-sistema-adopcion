@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { orm, syncSchema } from "./shared/db/orm.js";
+import { manejadorDeErrores } from "./shared/errores.js";
 import { RequestContext } from "@mikro-orm/mysql";
 import { rolRouter } from "./rol/rol.routes.js";
 import { especieRouter } from "./especie/especie.routes.js";
@@ -38,6 +39,14 @@ app.use("/api/mascotas", mascotaRouter);
 app.use("/api/refugios", refugioRouter);
 app.use("/api/solicitudes", solicitud_adopcion_router);
 app.use("/api/preguntas", preguntaRouter);
+
+// si ninguna ruta de arriba coincidio, respondemos 404 en JSON (Express por defecto manda HTML)
+app.use((req, res) => {
+  res.status(404).json({ message: `no existe la ruta ${req.method} ${req.path}` });
+});
+
+// siempre al final: atrapa los errores que no se manejaron en los handlers y los de express.json()
+app.use(manejadorDeErrores);
 
 await syncSchema(); //no usar en produccion
 

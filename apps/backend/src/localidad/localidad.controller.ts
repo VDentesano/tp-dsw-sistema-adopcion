@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
-import { esTextoValido } from "../shared/sanitizacion.js";
+import { responderError } from "../shared/errores.js";
+import { esTextoValido, parsearId } from "../shared/sanitizacion.js";
 import { Localidad } from "./localidad.entity.js";
 
 const em = orm.em
@@ -18,21 +19,24 @@ async function findAll(req: Request, res: Response) {
   try{
     const localidades = await em.find(Localidad,{})
     res.status(200).json({message:'find all localidades', data:localidades})
-  } catch(error:any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 async function findOne(req: Request, res: Response) {
   try{
-    const id = Number(req.params.id)
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const localidad = await em.findOne(Localidad, {id})
     if(!localidad){
       return res.status(404).json({message: 'no existe localidad'})
     }
     res.status(200).json({message:'found localidad', data: localidad})
-  }catch(error:any){
-    res.status(500).json({message: error.message})
+  }catch(error){
+    responderError(res, error)
   }
 }
 
@@ -41,14 +45,17 @@ async function add(req: Request, res: Response) {
     const localidad = em.create(Localidad, req.body.sanitizedInput)
     await em.flush()
     res.status(201).json({message:'localidad created', data: localidad})
-  } catch(error:any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 async function update(req: Request, res: Response) {
   try{
-    const id = Number(req.params.id)
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const localidad = await em.findOne(Localidad, id)
     if(!localidad){
       return res.status(404).json({message: 'no existe localidad'})
@@ -56,14 +63,17 @@ async function update(req: Request, res: Response) {
     em.assign(localidad, req.body.sanitizedInput)
     await em.flush()
     res.status(200).json({message: 'localidad modificada correctamente', data: localidad})
-  }catch(error:any){
-    res.status(500).json({message: error.message})
+  }catch(error){
+    responderError(res, error)
   }
 }
 
 async function remove(req: Request, res: Response) {
   try{
-    const id = Number(req.params.id)
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const localidad = await em.findOne(Localidad, id)
     if(!localidad){
       return res.status(404).json({message: 'no existe localidad'})
@@ -71,8 +81,8 @@ async function remove(req: Request, res: Response) {
     em.remove(localidad)
     await em.flush()
     res.status(200).json({message:'localidad deleted'})
-  }catch(error:any){
-    res.status(500).json({message: error.message})
+  }catch(error){
+    responderError(res, error)
   }
 }
 

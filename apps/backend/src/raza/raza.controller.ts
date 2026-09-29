@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
+import { responderError } from "../shared/errores.js";
 import { camposFaltantes, esTextoValido, parsearId } from "../shared/sanitizacion.js";
 import { Raza } from "./raza.entity.js";
 
@@ -59,13 +60,17 @@ const findAll = async (req: Request, res: Response) => {
     }
     res.status(200).json({ message: "Razas encontradas", data: razas });
   } catch (error) {
-    res.status(500).json({ message: "Error al encontrar razas", error });
+    responderError(res, error);
   }
 };
 
 const findOne = async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      res.status(400).json({ message: "id invalido" });
+      return;
+    }
     const raza = await em.findOne(Raza, { id }, { populate: ["especie"] });
     if (!raza) {
       res.status(404).json({ message: "Raza no encontrada" });
@@ -73,7 +78,7 @@ const findOne = async (req: Request, res: Response) => {
     }
     res.status(200).json({ message: "Raza encontrada", data: raza });
   } catch (error) {
-    res.status(500).json({ message: "Error al encontrar raza", error });
+    responderError(res, error);
   }
 };
 
@@ -83,36 +88,46 @@ const add = async (req: Request, res: Response) => {
     await em.flush();
     res.status(201).json({ message: "Raza agregada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al agregar raza", error });
+    responderError(res, error);
   }
 };
 
 const update = async (req: Request, res: Response) => {
-  const raza = await em.findOne(Raza, Number(req.params.id));
-  if (!raza) {
-    res.status(404).json({ message: "Raza no encontrada" });
-    return;
-  }
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      res.status(400).json({ message: "id invalido" });
+      return;
+    }
+    const raza = await em.findOne(Raza, { id });
+    if (!raza) {
+      res.status(404).json({ message: "Raza no encontrada" });
+      return;
+    }
     em.assign(raza, req.body.sanitizedInput as RazaInput);
     await em.flush();
     res.status(200).json({ message: "Raza actualizada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar raza", error });
+    responderError(res, error);
   }
 };
 
 const remove = async (req: Request, res: Response) => {
-  const raza = await em.findOne(Raza, Number(req.params.id));
-  if (!raza) {
-    res.status(404).json({ message: "Raza no encontrada" });
-    return;
-  }
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      res.status(400).json({ message: "id invalido" });
+      return;
+    }
+    const raza = await em.findOne(Raza, { id });
+    if (!raza) {
+      res.status(404).json({ message: "Raza no encontrada" });
+      return;
+    }
     await em.remove(raza).flush();
     res.status(200).json({ message: "Raza eliminada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al eliminar raza", error });
+    responderError(res, error);
   }
 };
 

@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express"
 import type { FilterQuery } from "@mikro-orm/core"
 import type { NuevaPreguntaDTO, TipoPregunta } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
+import { responderError } from "../shared/errores.js"
 import { esTextoValido, parsearId } from "../shared/sanitizacion.js"
 import { Pregunta_Formulario, TIPOS_PREGUNTA } from "./pregunta.entity.js"
 import { Refugio } from "../refugio/refugio.entity.js"
@@ -29,10 +30,6 @@ function sonOpcionesValidas(valor: unknown): valor is string[]{
   return Array.isArray(valor)
     && valor.length >= 2
     && valor.every((opcion) => typeof opcion === 'string' && opcion.trim().length > 0)
-}
-
-function mensajeDeError(error: unknown): string{
-  return error instanceof Error ? error.message : 'error inesperado'
 }
 
 
@@ -138,7 +135,7 @@ async function findAll(req: Request, res: Response){
     const preguntas = await em.find(Pregunta_Formulario, filtro, {orderBy: {orden: 'asc', id: 'asc'}})
     res.status(200).json({message: 'preguntas encontradas', data: preguntas})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -154,7 +151,7 @@ async function findOne(req: Request, res: Response){
     }
     res.status(200).json({message: 'pregunta encontrada', data: pregunta})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -171,7 +168,7 @@ async function add(req: Request, res: Response){
     await em.flush()
     res.status(201).json({message: 'pregunta creada', data: pregunta})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -216,7 +213,7 @@ async function update(req: Request, res: Response){
     await em.flush()
     res.status(200).json({message: 'pregunta reemplazada: se desactivo la anterior y se creo una nueva', data: nueva})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -238,7 +235,7 @@ async function remove(req: Request, res: Response){
     await em.flush()
     res.status(200).json({message: 'pregunta desactivada (soft delete)', data: pregunta})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 

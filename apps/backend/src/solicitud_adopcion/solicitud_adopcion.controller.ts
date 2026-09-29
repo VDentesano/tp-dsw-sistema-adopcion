@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express"
 import type { FilterQuery } from "@mikro-orm/core"
 import type { EstadoSolicitud, NuevaSolicitudDTO, RespuestasFormulario } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
+import { responderError } from "../shared/errores.js"
 import { parsearId } from "../shared/sanitizacion.js"
 import { ESTADOS_SOLICITUD, Solicitud_Adopcion } from "./solicitud_adopcion.entity.js"
 import { MASCOTA_DISPONIBLE, Mascota } from "../mascota/mascota.entity.js"
@@ -33,11 +34,6 @@ function esFormularioValido(valor: unknown): valor is RespuestasFormulario{
   return Object.values(valor).every((respuesta) =>
     typeof respuesta === 'string' || typeof respuesta === 'number' || typeof respuesta === 'boolean'
   )
-}
-
-// en un catch el error es unknown: solo podemos leer .message si realmente es un Error, esto habria que aplicarlo en los demas controladores tambien
-function mensajeDeError(error: unknown): string{
-  return error instanceof Error ? error.message : 'error inesperado'
 }
 
 
@@ -109,7 +105,7 @@ async function findAll(req: Request, res: Response){
     const solicitudes = await em.find(Solicitud_Adopcion, filtro, {populate:['mascota','usuario']})
     res.status(200).json({message: 'solicitudes encontradas', data: solicitudes})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -125,7 +121,7 @@ async function findOne(req: Request, res: Response){
     }
     res.status(200).json({message: 'solicitud encontrada', data: solicitud})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -175,7 +171,7 @@ async function add(req: Request, res: Response){
     await em.flush()
     res.status(201).json({message: 'solicitud creada', data: solicitud})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -197,7 +193,7 @@ async function update(req: Request, res: Response){
     await em.flush()
     res.status(200).json({message: 'solicitud modificada correctamente', data: solicitud})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 
@@ -215,7 +211,7 @@ async function remove(req: Request, res: Response){
     await em.flush()
     res.status(200).json({message: 'solicitud eliminada', data: solicitud})
   }catch(error){
-    res.status(500).json({message: mensajeDeError(error)})
+    responderError(res, error)
   }
 }
 

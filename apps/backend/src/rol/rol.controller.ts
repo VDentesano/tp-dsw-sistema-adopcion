@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
-import { esTextoValido } from "../shared/sanitizacion.js";
+import { responderError } from "../shared/errores.js";
+import { esTextoValido, parsearId } from "../shared/sanitizacion.js";
 import { Rol } from "./rol.entity.js";
 
 const em = orm.em;
@@ -19,20 +20,23 @@ async function findAll(req: Request, res: Response) {
     const roles = await em.find(Rol, {});
     res.status(200).json({ message: "Roles encontrados", data: roles });
   } catch (error) {
-    res.status(500).json({ message: "Error al encontrar roles", error });
+    responderError(res, error);
   }
 }
 
 async function findOne(req: Request, res: Response) {
-  const id = Number(req.params.id);
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      return res.status(400).json({ message: "id invalido" });
+    }
     const rol = await em.findOne(Rol, { id });
     if (!rol) {
       return res.status(404).json({ message: "Rol no encontrado" });
     }
     res.status(200).json({ message: "Rol encontrado", data: rol });
   } catch (error) {
-    res.status(500).json({ message: "Error al encontrar rol", error });
+    responderError(res, error);
   }
 }
 
@@ -42,35 +46,42 @@ async function add(req: Request, res: Response) {
     await em.flush();
     res.status(201).json({ message: "Rol agregado" });
   } catch (error) {
-    res.status(500).json({ message: "Error al agregar rol", error });
+    responderError(res, error);
   }
 }
 
 async function update(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  const rol = await em.findOne(Rol, { id });
-  if (!rol) {
-    return res.status(404).json({ message: "Rol no encontrado" });
-  }
-  em.assign(rol, req.body.sanitizedInput);
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      return res.status(400).json({ message: "id invalido" });
+    }
+    const rol = await em.findOne(Rol, { id });
+    if (!rol) {
+      return res.status(404).json({ message: "Rol no encontrado" });
+    }
+    em.assign(rol, req.body.sanitizedInput);
     await em.flush();
     res.status(200).json({ message: "Rol actualizado" });
   } catch (error) {
-    res.status(500).json({ message: "Error al actualizar rol", error });
+    responderError(res, error);
   }
 }
 
 async function remove(req: Request, res: Response) {
-  const rol = await em.findOne(Rol, { id: Number(req.params.id) });
-  if (!rol) {
-    return res.status(404).json({ message: "Rol no encontrado" });
-  }
   try {
+    const id = parsearId(req.params.id);
+    if (!id) {
+      return res.status(400).json({ message: "id invalido" });
+    }
+    const rol = await em.findOne(Rol, { id });
+    if (!rol) {
+      return res.status(404).json({ message: "Rol no encontrado" });
+    }
     await em.remove(rol).flush();
     res.status(200).json({ message: "Rol eliminado" });
   } catch (error) {
-    res.status(500).json({ message: "Error al eliminar rol", error });
+    responderError(res, error);
   }
 }
 

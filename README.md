@@ -109,6 +109,17 @@ Todas las rutas cuelgan de `http://localhost:3000/api`, en plural. Cada recurso 
 
 Las respuestas tienen la forma `{ message, data }`.
 
+Cada `POST` y `PUT` pasa primero por un middleware `sanitize...` que valida el body y deja pasar solo los campos permitidos (el resto se ignora). En el `POST` los campos obligatorios tienen que venir; en el `PUT` solo se modifican los campos que se manden.
+
+Los errores responden `{ message }` con estos códigos:
+
+| Código | Cuándo |
+| :--- | :--- |
+| 400 | Datos inválidos: body mal formado o incompleto, id inválido, o un id de otra entidad que no existe |
+| 404 | El registro o la ruta no existen |
+| 409 | Valor repetido en un campo único, o se quiere borrar algo que otros registros usan |
+| 500 | Error interno. El detalle no se manda al cliente: se ve en la consola del backend |
+
 ## Estado del proyecto (alcance mínimo)
 
 - [x] CRUD simple: Refugio, Usuario, Especie, Rol
@@ -141,3 +152,6 @@ Las respuestas tienen la forma `{ message, data }`.
 18) Agregamos filtros por estado y tamaño al listado de mascotas y habilitamos CORS para el front
 19) Creamos el front: catálogo de mascotas, detalle, formulario de postulación y "Mis solicitudes". Por ahora la sesión es un usuario demo hardcodeado hasta que tengamos login
 20) Unificamos todas las rutas de la API en plural (/api/mascotas, /api/refugios, /api/localidades, /api/solicitudes)
+21) Arreglamos findOne y remove de usuario: usaban findOneOrFail y getReference, así que nunca devolvían 404 cuando el usuario no existía
+22) Agregamos sanitización a todos los CRUD con middlewares sanitize... en las rutas (como ya tenían solicitud y pregunta): validan el body y descartan los campos que no corresponden, así nadie puede mandar un id, relaciones anidadas o datos inválidos. Los helpers compartidos están en shared/sanitizacion.ts
+23) Unificamos el manejo de errores en shared/errores.ts: todos los controllers responden los errores igual ({ message }) con 400, 404, 409 o 500, sin exponer el SQL ni el stack trace. Agregamos un 404 en JSON para rutas que no existen y un middleware de errores al final de app.ts

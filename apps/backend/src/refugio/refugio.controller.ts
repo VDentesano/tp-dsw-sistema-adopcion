@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express"
 import { orm } from "../shared/db/orm.js"
+import { responderError } from "../shared/errores.js"
 import { camposFaltantes, esEmailValido, esTextoValido, parsearId } from "../shared/sanitizacion.js"
 import { Refugio } from "./refugio.entity.js"
 
@@ -76,22 +77,25 @@ async function findAll(req: Request, res: Response){
   try{
     const refugios = await em.find(Refugio,{}, {populate: ['localidad']})
     res.status(200).json({message: 'find all refugios', data:refugios})
-  } catch(error:any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 
 async function findOne(req: Request, res: Response){
-  const id=Number(req.params.id)
   try{
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const refugio= await em.findOne(Refugio,{id})
     if(!refugio){
       return res.status(404).json({message: 'not found refugio'})
     }
     res.status(200).json({message: 'found refugio', data: refugio})
-  } catch(error:any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
@@ -100,14 +104,17 @@ async function add(req: Request, res: Response){
     const refugio = em.create(Refugio, req.body.sanitizedInput)
     await em.flush()
     res.status(201).json({message: 'refugio created', data: refugio})
-  } catch(error: any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 async function update(req: Request, res: Response){
     try{
-    const id = Number(req.params.id);
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const refugio = await em.findOne(Refugio,{id})
     if(!refugio){
       return res.status(404).json({message: 'not found refugio'})
@@ -115,14 +122,17 @@ async function update(req: Request, res: Response){
     em.assign(refugio, req.body.sanitizedInput as RefugioInput)
     await em.flush()
     res.status(200).json({message: 'refugio correctly modified', data: refugio})
-  } catch(error: any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 async function remove(req: Request, res: Response){
   try{
-    const id = Number(req.params.id);
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const refugio = await em.findOne(Refugio,{id})
     if(!refugio){
       return res.status(404).json({message: 'not found refugio'})
@@ -130,8 +140,8 @@ async function remove(req: Request, res: Response){
     em.remove(refugio)
     await em.flush()
     res.status(200).json({message: 'refugio deleted', data: refugio})
-  } catch(error: any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 export {sanitizeRefugioInput, sanitizeRefugioUpdateInput, findAll, findOne, add, update, remove}

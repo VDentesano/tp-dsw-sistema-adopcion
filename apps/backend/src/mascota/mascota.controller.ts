@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express"
 import type { FilterQuery } from "@mikro-orm/core"
 import type { EstadoMascota } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
+import { responderError } from "../shared/errores.js"
 import { camposFaltantes, esFechaValida, esTextoValido, esUrlValida, parsearId } from "../shared/sanitizacion.js"
 import { ESTADOS_MASCOTA, Mascota } from "./mascota.entity.js"
 
@@ -122,22 +123,25 @@ async function findAll(req: Request, res: Response){
 
     const mascotas = await em.find(Mascota, filtro, {populate: POPULATE_MASCOTA})
     res.status(200).json({message: 'find all mascotas', data: mascotas})
-  } catch(error:any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 
 async function findOne(req: Request, res: Response){
-  const id=Number(req.params.id)
   try{
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const mascota= await em.findOne(Mascota,{id}, {populate: POPULATE_MASCOTA})
     if(!mascota){
       return res.status(404).json({message: 'not found mascota'})
     }
     res.status(200).json({message: 'found mascota', data: mascota})
-  } catch(error:any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
@@ -146,14 +150,17 @@ async function add(req: Request, res: Response){
     const mascota = em.create(Mascota, req.body.sanitizedInput)
     await em.flush()
     res.status(201).json({message: 'mascota created', data: mascota})
-  } catch(error: any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 async function update(req: Request, res: Response){
     try{
-    const id = Number(req.params.id);
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const mascota = await em.findOne(Mascota,{id})
     if(!mascota){
       return res.status(404).json({message: 'not found mascota'})
@@ -161,14 +168,17 @@ async function update(req: Request, res: Response){
     em.assign(mascota, req.body.sanitizedInput as MascotaInput)
     await em.flush()
     res.status(200).json({message: 'mascota correctly modified', data: mascota})
-  } catch(error: any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 
 async function remove(req: Request, res: Response){
   try{
-    const id = Number(req.params.id);
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
     const mascota = await em.findOne(Mascota,{id})
     if(!mascota){
       return res.status(404).json({message: 'not found mascota'})
@@ -176,8 +186,8 @@ async function remove(req: Request, res: Response){
     em.remove(mascota)
     await em.flush()
     res.status(200).json({message: 'mascota deleted', data: mascota})
-  } catch(error: any){
-    res.status(500).json({message: error.message})
+  } catch(error){
+    responderError(res, error)
   }
 }
 export {sanitizeMascotaInput, sanitizeMascotaUpdateInput, findAll, findOne, add, update, remove}
