@@ -27,10 +27,10 @@ app.use("/api/roles", rolRouter);
 app.use("/api/especies", especieRouter);
 app.use("/api/razas", razaRouter);
 app.use("/api/usuarios", usuarioRouter);
-app.use("/api/localidad", localidadRouter);
-app.use("/api/mascota",mascotaRouter);
-app.use("/api/refugio",refugioRouter);
-app.use("/api/solicitud_adopcion", solicitud_adopcion_router);
+app.use("/api/localidades", localidadRouter);
+app.use("/api/mascotas", mascotaRouter);
+app.use("/api/refugios", refugioRouter);
+app.use("/api/solicitudes", solicitud_adopcion_router);
 app.use("/api/preguntas", preguntaRouter);
 
 await syncSchema(); //no usar en produccion

@@ -72,7 +72,7 @@ export interface RefugioResumenDTO {
   email: string;
 }
 
-/** Mascota como la devuelve GET /api/mascota (populate raza.especie y refugio). */
+/** Mascota como la devuelve GET /api/mascotas (populate raza.especie y refugio). */
 export interface MascotaDTO {
   id: number;
   nombre: string;
@@ -105,14 +105,14 @@ export type EstadoSolicitud = "Pendiente" | "Aprobada" | "Rechazada";
  */
 export type RespuestasFormulario = Record<string, string | number | boolean>;
 
-/** Lo que el adoptante manda al postularse (POST /api/solicitud_adopcion). */
+/** Lo que el adoptante manda al postularse (POST /api/solicitudes). */
 export interface NuevaSolicitudDTO {
   mascota: number;
   usuario: number;
   respuestasFormulario: RespuestasFormulario;
 }
 
-/** Solicitud como la devuelve GET /api/solicitud_adopcion (populate mascota y usuario). */
+/** Solicitud como la devuelve GET /api/solicitudes (populate mascota y usuario). */
 export interface SolicitudDTO {
   id: number;
   fechaSolicitud: string;

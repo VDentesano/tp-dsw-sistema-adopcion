@@ -8,9 +8,9 @@ import { api } from "./client";
 export function listarMascotasDisponibles(tamano?: string): Promise<MascotaDTO[]> {
   const params = new URLSearchParams({ estado: "Disponible" });
   if (tamano) params.set("tamano", tamano);
-  return api<MascotaDTO[]>(`/mascota?${params}`);
+  return api<MascotaDTO[]>(`/mascotas?${params}`);
 }
 
 export function buscarMascota(id: number): Promise<MascotaDTO> {
-  return api<MascotaDTO>(`/mascota/${id}`);
+  return api<MascotaDTO>(`/mascotas/${id}`);
 }

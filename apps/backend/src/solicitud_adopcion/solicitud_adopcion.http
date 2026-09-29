@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3000/api/solicitud_adopcion
+@baseUrl = http://localhost:3000/api/solicitudes
 
 ### Listar todas las solicitudes
 GET {{baseUrl}}
