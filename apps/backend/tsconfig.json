@@ -4,7 +4,7 @@
     "outDir": "./dist",
     "module": "nodenext",
     "target": "ES2022",
-    "types": [],
+    "types": ["node"],  // habilita process.env y los globals de Node
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,

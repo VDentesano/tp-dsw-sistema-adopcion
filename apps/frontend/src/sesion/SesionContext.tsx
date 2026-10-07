@@ -7,9 +7,9 @@ import { SesionContext, type UsuarioSesion } from "./contexto";
  * y ninguna pantalla se toca: todas leen la sesion via useSesion().
  */
 
-// usuario de prueba: tiene que existir en la base (ver usuario.http)
+// usuario de prueba: tiene que existir en la base (lo carga el seed, ver shared/db/seed.ts)
 const USUARIO_DEMO: UsuarioSesion = {
-  id: 12,
+  id: 3,
   nombre: "Juan",
   apellido: "Perez",
 };

@@ -1,13 +1,14 @@
 import type { NextFunction, Request, Response } from "express"
 import type { FilterQuery } from "@mikro-orm/core"
-import type { EstadoSolicitud, NuevaSolicitudDTO, RespuestasFormulario } from "@proyecto/types"
+import type {  DecisionSolicitud, EstadoSolicitud, NuevaSolicitudDTO, ResolucionSolicitudDTO, RespuestasFormulario } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
 import { responderError } from "../shared/errores.js"
-import { parsearId } from "../shared/sanitizacion.js"
-import { ESTADOS_SOLICITUD, Solicitud_Adopcion } from "./solicitud_adopcion.entity.js"
+import { esTextoValido, parsearId } from "../shared/sanitizacion.js"
+import { DECISIONES_SOLICITUD , ESTADOS_SOLICITUD, Solicitud_Adopcion } from "./solicitud_adopcion.entity.js"
 import { MASCOTA_DISPONIBLE, Mascota } from "../mascota/mascota.entity.js"
 import { Usuario } from "../usuario/usuario.entity.js"
 import { Pregunta_Formulario } from "../pregunta/pregunta.entity.js"
+import { registrarCambioEstado } from "../auditoria_estado/auditoria_estado.service.js"
 
 
 
@@ -15,7 +16,6 @@ const em = orm.em
 
 /** Campos que se pueden modificar en un update: la mascota y el usuario quedan fijos. */
 interface SolicitudUpdateInput {
-  estado?: EstadoSolicitud
   respuestasFormulario?: RespuestasFormulario
 }
 
@@ -24,6 +24,10 @@ interface SolicitudUpdateInput {
 
 function esEstadoValido(valor: unknown): valor is EstadoSolicitud{
   return ESTADOS_SOLICITUD.some((estado) => estado === valor)
+}
+
+function esDecisionValida(valor: unknown): valor is DecisionSolicitud{
+  return DECISIONES_SOLICITUD.some((decision) => decision === valor)
 }
 
 // el formulario dinamico es un objeto plano {pregunta: respuesta} con valores primitivos
@@ -61,16 +65,40 @@ function sanitizeSolicitudInput(req: Request, res: Response, next: NextFunction)
   next()
 }
 
-// en el update no se puede reapuntar la solicitud a otra mascota u otro usuario
+
+function sanitizeResolucionInput(req: Request, res: Response, next: NextFunction){
+  const {decision, motivo} = req.body
+  const voluntario = parsearId(req.body.voluntario)
+
+  if(!esDecisionValida(decision)){
+    return res.status(400).json({message: `decision invalida, valores posibles: ${DECISIONES_SOLICITUD.join(', ')}`})
+  }
+  if(!voluntario){
+    return res.status(400).json({message: 'voluntario es obligatorio y debe ser un id valido'})
+  }
+  if(motivo !== undefined && !esTextoValido(motivo)){
+    return res.status(400).json({message: 'motivo no puede estar vacio'})
+  }
+  if(decision === 'Rechazada' && motivo === undefined){
+    return res.status(400).json({message: 'motivo es obligatorio para rechazar una solicitud'})
+  }
+
+  const sanitizedInput: ResolucionSolicitudDTO = {decision, voluntario}
+  if(esTextoValido(motivo)){
+    sanitizedInput.motivo = motivo.trim()
+  }
+
+  req.body.sanitizedInput = sanitizedInput
+  next()
+}
+
+
+// en el update solo se cambian las respuestas: la mascota, el usuario y el estado quedan fijos
+// (el estado se cambia unicamente por el CUU de resolucion, para que quede en la auditoria)
 function sanitizeSolicitudUpdateInput(req: Request, res: Response, next: NextFunction){
   const sanitizedInput: SolicitudUpdateInput = {}
 
-  if(req.body.estado !== undefined){
-    if(!esEstadoValido(req.body.estado)){
-      return res.status(400).json({message: `estado invalido, valores posibles: ${ESTADOS_SOLICITUD.join(', ')}`})
-    }
-    sanitizedInput.estado = req.body.estado
-  }
+
   if(req.body.respuestasFormulario !== undefined){
     if(!esFormularioValido(req.body.respuestasFormulario)){
       return res.status(400).json({message: 'respuestasFormulario debe ser un objeto con valores de texto, numero o booleano'})
@@ -175,6 +203,61 @@ async function add(req: Request, res: Response){
   }
 }
 
+
+async function resolver(req: Request, res: Response){
+  try{
+    const id = parsearId(req.params.id)
+    if(!id){
+      return res.status(400).json({message: 'id invalido'})
+    }
+    const {decision, motivo, voluntario: voluntarioId} = req.body.sanitizedInput as ResolucionSolicitudDTO
+
+    const solicitud = await em.findOne(Solicitud_Adopcion, {id}, {populate: ['mascota', 'usuario']})
+    if(!solicitud){
+      return res.status(404).json({message: 'solicitud no encontrada'})
+    }
+    if(solicitud.estado !== 'Pendiente'){
+      return res.status(409).json({message: `la solicitud ya fue resuelta (estado actual: ${solicitud.estado})`})
+    }
+
+    const voluntario = await em.findOne(Usuario, {id: voluntarioId})
+    if(!voluntario){
+      return res.status(404).json({message: 'voluntario no encontrado'})
+    }
+    // RN: solo un voluntario del refugio de la mascota puede resolver sus solicitudes
+    if(voluntario.refugio?.id !== solicitud.mascota.refugio.id){
+      return res.status(403).json({message: 'el voluntario no pertenece al refugio de la mascota'})
+    }
+    
+      const solicitudResuelta = await em.transactional(async (tem) => {
+      const solicitudTx = await tem.findOneOrFail(Solicitud_Adopcion, {id}, {populate: ['mascota']})
+
+      solicitudTx.estado = decision
+      if(motivo !== undefined){
+        solicitudTx.motivo = motivo
+      }
+
+      if(decision === 'Aprobada'){
+        // la mascota queda Reservada: tiene dueño pero todavia no fue entregada
+        registrarCambioEstado(tem, solicitudTx.mascota, 'Reservada', motivo)
+
+        // RN: al aprobar una, las demas postulaciones a esa mascota se caen solas
+        await tem.nativeUpdate(Solicitud_Adopcion,
+          {mascota: solicitudTx.mascota, estado: 'Pendiente', id: {$ne: id}},
+          {estado: 'Rechazada', motivo: 'se aprobo otra solicitud para esta mascota'})
+      }
+
+      return solicitudTx
+    })
+
+    res.status(200).json({message: 'solicitud resuelta', data: solicitudResuelta})
+  }catch(error){
+    responderError(res, error)
+  }
+}
+
+
+
 /*
   Update generico del CRUD. La resolucion de la solicitud (aprobar/rechazar, que ademas
   cambia el estado de la mascota y registra la auditoria) va aparte, en el CUU de resolucion.
@@ -215,4 +298,4 @@ async function remove(req: Request, res: Response){
   }
 }
 
-export {sanitizeSolicitudInput, sanitizeSolicitudUpdateInput, findAll, findOne, add, update, remove}
+export {sanitizeSolicitudInput, sanitizeSolicitudUpdateInput, findAll, findOne, add, update, remove, sanitizeResolucionInput, resolver}

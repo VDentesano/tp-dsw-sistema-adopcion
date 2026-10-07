@@ -56,7 +56,15 @@ proposal.md
 
    Crea la base `refugio` con el usuario `dsw` / contraseña `dsw` en el puerto 3306.
 
-3. Levantar el back y el front juntos desde la raíz:
+3. Crear el archivo de variables de entorno del backend:
+
+   ```bash
+   cp apps/backend/.env.example apps/backend/.env
+   ```
+
+   Ahí van los datos de conexión a MySQL. El `.env` no se commitea (está en `.gitignore`), así que cada uno tiene el suyo; los valores de `.env.example` ya coinciden con los del `docker-compose.yml`, así que si usás Docker se copia tal cual y no hay nada que editar. Si falta una variable, el backend no arranca y avisa cuál es.
+
+4. Levantar el back y el front juntos desde la raíz:
 
    ```bash
    pnpm dev
@@ -69,26 +77,37 @@ proposal.md
 
 ### Cargar datos de prueba
 
-La base arranca vacía. Los datos se cargan con los archivos `.http` de cada entidad (en VS Code con la extensión REST Client). Por las relaciones hay que respetar este orden:
+La base arranca vacía. Para tener algo que mirar en el front, desde la raíz:
 
-1. `rol.http`, `especie.http` y `localidad.http`
-2. `raza.http` (necesita una especie)
-3. `refugio.http` (necesita una localidad)
-4. `usuario.http` (necesita un rol y opcionalmente un refugio)
-5. `mascota.http` (necesita una raza y un refugio)
-6. `pregunta.http` (las preguntas del formulario de postulación de cada refugio)
+```bash
+pnpm --filter backend seed
+```
 
-Los ids de los ejemplos pueden no coincidir con los de tu base: revisalos antes de mandar cada request.
+Carga refugios, razas, usuarios, mascotas, las preguntas del formulario y algunas solicitudes (`apps/backend/src/shared/db/seed.ts`). Es destructivo: **borra todas las filas y las vuelve a cargar**, así los ids son siempre los mismos. Se puede correr todas las veces que haga falta para volver a un estado conocido.
 
-Como todavía no hay login, el front usa un usuario demo fijo definido en `apps/frontend/src/sesion/SesionContext.tsx`. Ese usuario tiene que existir en tu base: si no, cambiá el `id` por el de uno que hayas creado.
+Qué queda cargado:
+
+| Dato | Para qué sirve |
+| :--- | :--- |
+| Juan Perez (usuario id 3, rol Adoptante) | es el usuario demo del front, el que se postula |
+| Lucia Gomez (usuario id 1, rol Voluntario de *Patitas al Rescate*) | el que va a resolver solicitudes |
+| 8 mascotas en los 4 estados, en 2 refugios | el catálogo y sus filtros. Dos quedan sin foto para ver el placeholder |
+| 6 preguntas de formulario, una inactiva | el formulario dinámico y la regla de inmutabilidad de las preguntas |
+| 4 solicitudes pendientes (3 son de la misma mascota), 1 aprobada y 1 rechazada | el listado por estado y el CUU de resolución |
+
+También se pueden cargar datos a mano con los archivos `.http` de cada entidad (en VS Code con la extensión REST Client), respetando el orden de las relaciones: `rol`, `especie` y `localidad` primero, después `raza` (necesita especie), `refugio` (necesita localidad), `usuario` (necesita rol), `mascota` (necesita raza y refugio) y `pregunta` (necesita refugio). Ojo que los ids de los ejemplos pueden no coincidir con los de tu base.
+
+Como todavía no hay login, el front usa un usuario demo fijo definido en `apps/frontend/src/sesion/SesionContext.tsx`. Apunta al usuario id 3 que carga el seed: si cargaste los datos a mano, cambiá el `id` por el de un usuario que exista.
 
 ### Otros comandos
 
 | Comando | Dónde | Qué hace |
 | :--- | :--- | :--- |
 | `pnpm dev` | raíz | levanta back y front en paralelo |
+| `pnpm --filter backend seed` | raíz | borra y recarga los datos de prueba |
 | `pnpm lint` | `apps/frontend` | corre ESLint |
 | `pnpm build` | `apps/frontend` | build de producción del front |
+| `pnpm --filter backend build` | raíz | compila el backend a `dist/` |
 | `docker compose down` | raíz | apaga MySQL (los datos quedan en el volumen `refugio-data`) |
 
 ## API
@@ -107,6 +126,16 @@ Todas las rutas cuelgan de `http://localhost:3000/api`, en plural. Cada recurso 
 | Pregunta del formulario | `/preguntas` | `?refugio=1&activa=true` |
 | Solicitud de adopción | `/solicitudes` | `?estado=Pendiente&usuario=1&mascota=1` |
 
+Además de los CRUD hay un endpoint de negocio:
+
+| Acción | Ruta | Body |
+| :--- | :--- | :--- |
+| Resolver una solicitud | `POST /solicitudes/:id/resolver` | `{ decision: "Aprobada" \| "Rechazada", voluntario, motivo? }` |
+
+Solo resuelve solicitudes `Pendiente` (si no, 409) y solo si el voluntario pertenece al refugio de la mascota (si no, 403). El `motivo` es obligatorio al rechazar. Al aprobar, en una sola transacción: la solicitud pasa a `Aprobada`, la mascota a `Reservada`, se registra la auditoría del cambio de estado y las demás solicitudes pendientes de esa mascota pasan a `Rechazada`.
+
+El `estado` de una mascota y de una solicitud **no se puede cambiar por los `PUT`**: se cambia solo por este endpoint, para que todo cambio quede en `Auditoria_Estado`.
+
 Las respuestas tienen la forma `{ message, data }`.
 
 Cada `POST` y `PUT` pasa primero por un middleware `sanitize...` que valida el body y deja pasar solo los campos permitidos (el resto se ignora). En el `POST` los campos obligatorios tienen que venir; en el `PUT` solo se modifican los campos que se manden.
@@ -116,8 +145,9 @@ Los errores responden `{ message }` con estos códigos:
 | Código | Cuándo |
 | :--- | :--- |
 | 400 | Datos inválidos: body mal formado o incompleto, id inválido, o un id de otra entidad que no existe |
+| 403 | El voluntario no pertenece al refugio de la mascota de la solicitud |
 | 404 | El registro o la ruta no existen |
-| 409 | Valor repetido en un campo único, o se quiere borrar algo que otros registros usan |
+| 409 | Valor repetido en un campo único, se quiere borrar algo que otros registros usan, o el estado actual no permite la operación (postularse a una mascota no disponible, resolver una solicitud ya resuelta) |
 | 500 | Error interno. El detalle no se manda al cliente: se ve en la consola del backend |
 
 ## Estado del proyecto (alcance mínimo)
@@ -128,7 +158,7 @@ Los errores responden `{ message }` con estos códigos:
 - [ ] Detalle de mascota con ficha médica y vacunas
 - [ ] Gestión de solicitudes para el voluntario (listado por estado y detalle del formulario)
 - [x] CUU Postulación con formulario dinámico
-- [ ] CUU Resolución de solicitudes con auditoría de estados
+- [x] CUU Resolución de solicitudes con auditoría de estados
 
 ## Paso a paso del desarrollo app de adopción
 
@@ -155,3 +185,7 @@ Los errores responden `{ message }` con estos códigos:
 21) Arreglamos findOne y remove de usuario: usaban findOneOrFail y getReference, así que nunca devolvían 404 cuando el usuario no existía
 22) Agregamos sanitización a todos los CRUD con middlewares sanitize... en las rutas (como ya tenían solicitud y pregunta): validan el body y descartan los campos que no corresponden, así nadie puede mandar un id, relaciones anidadas o datos inválidos. Los helpers compartidos están en shared/sanitizacion.ts
 23) Unificamos el manejo de errores en shared/errores.ts: todos los controllers responden los errores igual ({ message }) con 400, 404, 409 o 500, sin exponer el SQL ni el stack trace. Agregamos un 404 en JSON para rutas que no existen y un middleware de errores al final de app.ts
+24) Agregamos un script de datos de prueba (`pnpm --filter backend seed`): borra todo y carga refugios, razas, usuarios, mascotas, preguntas y solicitudes con ids fijos, para poder probar el front sin ir cargando todo a mano con los `.http`
+25) Hicimos el CUU de resolución: creamos la entity `Auditoria_Estado` (que guarda estado anterior, estado nuevo, fecha y motivo de cada cambio de una mascota) y el endpoint `POST /api/solicitudes/:id/resolver`. Solo se puede resolver una solicitud pendiente, y solo un voluntario del refugio de la mascota. Al aprobar, dentro de una transacción, la solicitud pasa a Aprobada, la mascota a Reservada (tiene dueño pero todavía no fue entregada), se registra la auditoría y las demás postulaciones a esa mascota se rechazan solas. Al rechazar solo cambia la solicitud. El cambio de estado de la mascota vive en un único lugar (`auditoria_estado.service.ts`) para que nunca se pueda cambiar sin dejar rastro
+26) Sacamos el `estado` de los `PUT` genéricos de mascota y solicitud, y le agregamos el campo `motivo` a la solicitud. Hasta acá el CRUD permitía mandar `{"estado": "Aprobada"}` y saltearse el CUU entero: sin auditoría, sin rechazar las otras postulaciones y sin verificar el refugio. Ahora una mascota nueva nace `Disponible` por el valor por defecto de la entity, y el único camino para cambiar un estado es resolver una solicitud
+27) Limpieza de configuración: sacamos los datos de conexión a MySQL de `orm.ts` y los pasamos a variables de entorno (`apps/backend/.env`, con un `.env.example` de plantilla). Los scripts le pasan a Node `--env-file-if-exists`, así que no hizo falta instalar dotenv. Renombramos el script `publish` a `build`, borramos la config `mikro-orm.configPaths` del package.json (apuntaba a un archivo que no existe) y actualizamos los `.http` de todas las entidades para que los ids coincidan con los que carga el seed

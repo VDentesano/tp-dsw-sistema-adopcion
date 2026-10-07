@@ -120,3 +120,13 @@ export interface SolicitudDTO {
   respuestasFormulario: RespuestasFormulario;
   mascota: MascotaResumenDTO;
 }
+// ---------- Resolucion de solicitud ----------
+export const DECISIONES_SOLICITUD = ["Aprobada","Rechazada"] as const;
+export type DecisionSolicitud = (typeof DECISIONES_SOLICITUD)[number];
+
+/** Lo que el voluntario manda al resolver una solicitud (POST /api/solicitudes/:id/resolver). */
+export interface ResolucionSolicitudDTO {
+  decision: DecisionSolicitud;
+  motivo?: string;
+  voluntario: number;
+}

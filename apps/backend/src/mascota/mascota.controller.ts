@@ -13,7 +13,6 @@ interface MascotaInput {
   nombre?: string
   fechaDeNac?: string
   tamano?: string
-  estado?: EstadoMascota
   fotoURL?: string
   estilo?: string
   raza?: number
@@ -46,14 +45,7 @@ function leerMascota(body: Record<string, unknown>): MascotaInput | string{
     if(!esTextoValido(body.tamano)) return 'tamano no puede estar vacio'
     input.tamano = body.tamano.trim()
   }
-  /*
-    Por ahora el estado se puede cargar y cambiar desde el CRUD (validando que sea uno de los posibles).
-    Cuando este el CUU de resolucion, los cambios de estado van a pasar por ahi para quedar en la auditoria.
-  */
-  if(body.estado !== undefined){
-    if(!esEstadoValido(body.estado)) return `estado invalido, valores posibles: ${ESTADOS_MASCOTA.join(', ')}`
-    input.estado = body.estado
-  }
+  // el estado no se toca desde el CRUD: lo cambia el CUU de resolucion, que ademas registra la auditoria
   if(body.fotoURL !== undefined){
     if(!esUrlValida(body.fotoURL)) return 'fotoURL debe ser un link http o https'
     input.fotoURL = body.fotoURL.trim()

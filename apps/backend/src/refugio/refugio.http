@@ -2,6 +2,8 @@
 ### GET ALL
 GET {{baseUrl}}
 
+# El seed carga Patitas al Rescate (1) y Huellitas Funes (2), y las localidades 1 a 3.
+# Este refugio queda con id 3
 ### POST
 POST {{baseUrl}}
 Content-Type:application/json
@@ -11,20 +13,21 @@ Content-Type:application/json
   "direccion": "Alvear 50",
   "telefono": "2131445456",
   "email": "lala@gmail.com",
-  "localidad": 7
+  "localidad": 1
 }
 
 ### GET ONE
 GET {{baseUrl}}/1
 
-### PUT
-PUT {{baseUrl}}/1
+### PUT (el id 3 es el que creaste arriba)
+PUT {{baseUrl}}/3
 Content-Type: application/json
 
 {
   "nombre": "Guarderia Porotos",
-  "localidad": 8
+  "localidad": 2
 }
 
 ### REMOVE
-DELETE {{baseUrl}}/1
+# Ojo: los refugios 1 y 2 tienen mascotas, usuarios y preguntas asociadas, borrarlos da 409
+DELETE {{baseUrl}}/3

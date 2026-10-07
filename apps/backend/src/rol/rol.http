@@ -6,21 +6,24 @@ GET {{baseUrl}}
 ### Traer un rol por id (cambiá el id)
 GET {{baseUrl}}/1
 
+# Los roles Adoptante (1), Voluntario (2) y Administrador (3) ya los carga el seed,
+# asi que el POST crea uno nuevo: queda con id 4
 ### Crear un rol
 POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "nombre": "Voluntario"
+  "nombre": "Veterinario"
 }
 
-### Modificar un rol (cambiá el id en la URL)
-PUT {{baseUrl}}/1
+### Modificar un rol (el id 4 es el que creaste con el POST de arriba)
+PUT {{baseUrl}}/4
 Content-Type: application/json
 
 {
-  "nombre": "Administrador"
+  "nombre": "Veterinario de guardia"
 }
 
-### Eliminar un rol (cambiá el id en la URL)
-DELETE {{baseUrl}}/1
+### Eliminar un rol
+# Ojo: los roles 1, 2 y 3 tienen usuarios asociados, borrarlos da 409
+DELETE {{baseUrl}}/4

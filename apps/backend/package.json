@@ -4,16 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "publish": "tsc -p ./tsconfig.json",
-    "dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node ./dist/app.js\"",
+    "build": "tsc -p ./tsconfig.json",
+    "dev": "tsc-watch --noClear -p ./tsconfig.json --onSuccess \"node --env-file-if-exists=.env ./dist/app.js\"",
+    "seed": "tsc -p ./tsconfig.json && node --env-file-if-exists=.env ./dist/shared/db/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "mikro-orm": {
-    "useTsNode": true,
-    "configPaths": [
-      "./src/mikro-orm.config.ts",
-      "./dist/mikro-orm.config.js"
-    ]
   },
   "keywords": [],
   "author": "",

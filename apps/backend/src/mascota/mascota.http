@@ -3,25 +3,31 @@
 GET {{baseUrl}}
 
 ### POST
+# Las razas 1 a 5 y los refugios 1 y 2 los carga el seed. Esta mascota queda con id 9.
+# El estado no se puede mandar: nace Disponible (lo cambia solo el CUU de resolucion)
 POST {{baseUrl}}
 Content-Type:application/json
 
 {
-  "nombre": "pape",
+  "nombre": "Pepe",
   "raza": 1,
-  "refugio": 1
+  "refugio": 1,
+  "tamano": "Mediano",
+  "fechaDeNac": "2021-07-15"
 }
 
-### GET ONE
+### GET ONE (Tito, del seed)
 GET {{baseUrl}}/2
 
-### PUT
-PUT {{baseUrl}}/2
+### PUT (el id 9 es la que creaste arriba)
+PUT {{baseUrl}}/9
 Content-Type: application/json
 
 {
-  "nombre": "pape"
+  "nombre": "Pepe Grillo",
+  "tamano": "Chico"
 }
 
 ### REMOVE
-DELETE {{baseUrl}}/1
+# Ojo: una mascota con solicitudes o con auditoria de estados no se puede borrar (409)
+DELETE {{baseUrl}}/9

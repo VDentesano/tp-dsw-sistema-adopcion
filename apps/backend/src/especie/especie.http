@@ -6,21 +6,24 @@ GET {{baseUrl}}
 ### Traer una especie por id (cambiá el id)
 GET {{baseUrl}}/1
 
+# Perro (1) y Gato (2) ya los carga el seed y el nombre es unico: repetirlos da 409.
+# Esta queda con id 3
 ### Crear una especie
 POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "nombre": "Perro"
+  "nombre": "Conejo"
 }
 
-### Modificar una especie (cambiá el id en la URL)
-PUT {{baseUrl}}/1
+### Modificar una especie (el id 3 es la que creaste arriba)
+PUT {{baseUrl}}/3
 Content-Type: application/json
 
 {
-  "nombre": "Gato"
+  "nombre": "Conejo enano"
 }
 
-### Eliminar una especie (cambiá el id en la URL)
-DELETE {{baseUrl}}/1
+### Eliminar una especie
+# Ojo: Perro y Gato tienen razas asociadas, borrarlos da 409
+DELETE {{baseUrl}}/3

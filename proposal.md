@@ -11,7 +11,7 @@
 
 **Repositorios:**
 
-* [Fullstack App](#)
+* [Fullstack App](https://github.com/VDentesano/tp-dsw-sistema-adopcion)
 
 ---
 
@@ -29,11 +29,13 @@ El modelo se basa en una arquitectura de roles para centralizar la gestión de u
 
 ```mermaid
 erDiagram
+    LOCALIDAD ||--o{ REFUGIO : "ubica"
     REFUGIO ||--o{ MASCOTA : "alberga"
     REFUGIO ||--o{ USUARIO : "tiene voluntarios"
+    REFUGIO ||--o{ PREGUNTA_FORMULARIO : "define"
     USUARIO }o--|| ROL : "tiene"
     USUARIO ||--o{ SOLICITUD_ADOPCION : "realiza"
-    MASCOTA }o--|| ESPECIE : "pertenece"
+    ESPECIE ||--o{ RAZA : "agrupa"
     MASCOTA }o--|| RAZA : "es de"
     MASCOTA ||--o{ AUDITORIA_ESTADO : "registra historial"
     MASCOTA ||--o{ HISTORIA_CLINICA : "tiene vacunas"
@@ -47,15 +49,20 @@ erDiagram
         int RolID PK
         string Nombre
     }
-    
+
+    LOCALIDAD {
+        int LocalidadID PK
+        string Nombre
+    }
+
     USUARIO {
         int UsuarioID PK
         string Email
         string Contrasena
-        string NombreCompleto
+        string Nombre
+        string Apellido
         string Telefono
         int RolID FK
-        int LocalidadID
         int RefugioID FK
     }
 
@@ -64,7 +71,8 @@ erDiagram
         string Nombre
         string Direccion
         string Telefono
-        int LocalidadID
+        string Email
+        int LocalidadID FK
     }
 
     MASCOTA {
@@ -75,8 +83,18 @@ erDiagram
         string Estado
         string FotoURL
         string Estilo
-        int EspecieID FK
         int RazaID FK
+        int RefugioID FK
+    }
+
+    PREGUNTA_FORMULARIO {
+        int PreguntaID PK
+        string Texto
+        string Tipo
+        json Opciones
+        boolean Obligatoria
+        int Orden
+        boolean Activa
         int RefugioID FK
     }
 
@@ -91,9 +109,10 @@ erDiagram
 
     SOLICITUD_ADOPCION {
         int SolicitudID PK
-        date FechaSolicitud
+        datetime FechaSolicitud
         string Estado
-        string RespuestasFormulario
+        json RespuestasFormulario
+        string Motivo
         int UsuarioID FK
         int MascotaID FK
     }
@@ -149,7 +168,9 @@ erDiagram
         string TipoRelacion
         int RelacionadoID
     }
-````
+```
+
+Implementadas hasta ahora: Rol, Localidad, Usuario, Refugio, Especie, Raza, Mascota, Pregunta_Formulario, Solicitud_Adopcion y Auditoria_Estado. Quedan pendientes Vacuna, Historia_Clinica, Seguimiento, Entrevista_Visita y Notificacion.
 
 ## Alcance Funcional
 
@@ -160,7 +181,7 @@ A continuación, se detallan los requerimientos funcionales del sistema, estruct
 | Requerimiento | Detalle |
 | :--- | :--- |
 | **CRUD Simple** | 1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie<br>4. CRUD Rol|
-| **CRUD Dependiente** | 1. CRUD Mascota (Depende de Refugio y Estado)<br>2. CRUD Raza (Depende de Especie)|
+| **CRUD Dependiente** | 1. CRUD Mascota (Depende de Refugio y Raza)<br>2. CRUD Raza (Depende de Especie)|
 | **Listados + Detalle** | 1. **Catálogo de Mascotas:** Listado filtrado por estado y tamaño. Muestra nombre, edad y tamaño. El detalle expone la ficha médica y vacunas.<br>2. **Gestión de Solicitudes:** Listado filtrado por estado (pendiente, aprobada, rechazada). Muestra fecha, postulante y mascota. Detalle muestra formulario completo. |
 | **CUU / Epic** | 1. **Postulación:** El usuario se postula a una adopción completando un formulario dinámico.<br>2. **Resolución:** El voluntario aprueba o rechaza una solicitud, actualizando automáticamente el estado de la mascota y registrando la auditoría. |
 
@@ -168,7 +189,7 @@ A continuación, se detallan los requerimientos funcionales del sistema, estruct
 
 | Requerimiento | Detalle |
 | :--- | :--- |
-| **Gestión de Entidades (CRUD)** | Extensión de ABMs para cubrir el modelo completo:<br>1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie<br>4. CRUD Rol<br>5. CRUD Notificacion<br>6. CRUD Entrevista_Visita<br>7. CRUD Seguimiento<br>8. CRUD Solicitud_Adopcion<br>9. CRUD Auditoria_Estado<br>10. CRUD Historia_Clinica<br>11. CRUD Especie<br>12. CRUD Raza<br>13. CRUD Mascota|
+| **Gestión de Entidades (CRUD)** | Extensión de ABMs para cubrir el modelo completo:<br>1. CRUD Refugio<br>2. CRUD Usuario<br>3. CRUD Especie<br>4. CRUD Rol<br>5. CRUD Notificacion<br>6. CRUD Entrevista_Visita<br>7. CRUD Seguimiento<br>8. CRUD Solicitud_Adopcion<br>9. CRUD Auditoria_Estado<br>10. CRUD Historia_Clinica<br>11. CRUD Raza<br>12. CRUD Mascota<br>13. CRUD Localidad<br>14. CRUD Pregunta_Formulario|
 | **CUU / Epic** | 1. Postulación con formulario dinámico.<br>2. Resolución de solicitud con transiciones automáticas en el sistema de auditoría.<br>3. Registro y validación de controles periódicos en el módulo de seguimiento.<br>4. Match de Adopcion, algoritmo que sugiere mascotas compatibles según las preferencias del adoptante. |
 
 ### Alcance Adicional Voluntario

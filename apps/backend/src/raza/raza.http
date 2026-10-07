@@ -7,23 +7,25 @@ GET {{baseUrl}}
 GET {{baseUrl}}/1
 
 ### Crear una raza
-# Ojo: la especie con ese id tiene que existir. Si no, creá una primero en especie.http
+# Ojo: la especie con ese id tiene que existir (el seed carga Perro=1 y Gato=2).
+# El nombre de la raza es unico: las 5 del seed ya estan tomadas. Esta queda con id 6
 POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "nombre": "Labrador",
+  "nombre": "Border Collie",
   "especie": 1
 }
 
-### Modificar una raza (podés cambiar el nombre y/o la especie)
-PUT {{baseUrl}}/1
+### Modificar una raza (el id 6 es la que creaste arriba; se puede cambiar el nombre y/o la especie)
+PUT {{baseUrl}}/6
 Content-Type: application/json
 
 {
-  "nombre": "Labrador Retriever",
+  "nombre": "Border Collie australiano",
   "especie": 1
 }
 
-### Eliminar una raza (cambiá el id en la URL)
-DELETE {{baseUrl}}/1
+### Eliminar una raza
+# Ojo: las razas del seed tienen mascotas asociadas, borrarlas da 409
+DELETE {{baseUrl}}/6

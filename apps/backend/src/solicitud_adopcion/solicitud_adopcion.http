@@ -6,15 +6,17 @@ GET {{baseUrl}}
 ### Listar filtrando por estado (Pendiente | Aprobada | Rechazada)
 GET {{baseUrl}}?estado=Pendiente
 
-### Listar solicitudes de un usuario
-GET {{baseUrl}}?usuario=9
+### Listar solicitudes de un usuario (3 = Juan Perez, el usuario demo del front)
+GET {{baseUrl}}?usuario=3
 
 ### Listar solicitudes de una mascota
 GET {{baseUrl}}?mascota=1
 
 
-# Ojo: la mascota tiene que existir y estar en estado "Disponible",
-# y el usuario tiene que existir. Si no, crealos en mascota.http y usuario.http
+# Ojo: la mascota tiene que existir y estar "Disponible", y el usuario tiene que existir.
+# Las claves de respuestasFormulario son los ids de las preguntas: hay que responder
+# todas las obligatorias y activas del refugio de la mascota. Con el seed, el refugio 1
+# tiene obligatorias la 1 (vivienda) y la 2 (cuantas personas); la 4 esta inactiva
 ###
 # @name createSolicitud
 POST {{baseUrl}}
@@ -22,11 +24,11 @@ Content-Type: application/json
 
 {
   "mascota": 3,
-  "usuario": 13,
+  "usuario": 5,
   "respuestasFormulario": {
-    "vivienda": "casa",
-    "patio": false,
-    "horas_solo": 6
+    "1": "Casa con patio",
+    "2": 3,
+    "3": "Tuve dos perros rescatados"
   }
 }
 
@@ -38,14 +40,16 @@ Content-Type: application/json
 GET {{baseUrl}}/{{id}}
 
 
-### PUT (solo se pueden modificar estado y respuestasFormulario)
+### PUT (solo se puede modificar respuestasFormulario)
+# El estado NO se cambia desde aca: se cambia unicamente resolviendo la solicitud
+# (ver el CUU de resolucion al final), para que quede registrado en la auditoria.
 PUT {{baseUrl}}/{{id}}
 Content-Type: application/json
 
 {
-  "estado": "Rechazada",
   "respuestasFormulario": {
-    "vivienda": "depto"
+    "1": "Departamento",
+    "2": 2
   }
 }
 
@@ -61,9 +65,9 @@ POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "mascota": 1,
-  "usuario": 9,
-  "respuestasFormulario": { "vivienda": "casa" }
+  "mascota": 4,
+  "usuario": 5,
+  "respuestasFormulario": { "1": "Departamento", "2": 1 }
 }
 
 ### POST con estado inyectado -> lo ignora, la crea Pendiente
@@ -71,20 +75,21 @@ POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "mascota": 3,
-  "usuario": 9,
+  "mascota": 2,
+  "usuario": 5,
   "estado": "Aprobada",
-  "respuestasFormulario": { "vivienda": "depto" }
+  "respuestasFormulario": { "1": "Casa sin patio", "2": 4 }
 }
 
 ### POST a mascota no disponible -> 409
+# la mascota 5 (Pelusa) esta En tratamiento; la 7 esta Reservada y la 8 Adoptada
 POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "mascota": 2,
-  "usuario": 9,
-  "respuestasFormulario": { "vivienda": "casa" }
+  "mascota": 5,
+  "usuario": 5,
+  "respuestasFormulario": { "1": "Casa con patio", "2": 2 }
 }
 
 ### POST sin ids validos -> 400
@@ -93,7 +98,7 @@ Content-Type: application/json
 
 {
   "mascota": true,
-  "usuario": 9,
+  "usuario": 5,
   "respuestasFormulario": {}
 }
 
@@ -103,29 +108,102 @@ Content-Type: application/json
 
 {
   "mascota": 1,
-  "usuario": 9,
+  "usuario": 5,
   "respuestasFormulario": [1, 2]
 }
 
 ### POST sin responder las preguntas obligatorias del refugio -> 400
-# (para que falle tiene que haber preguntas con obligatoria=true y activa=true
-#  en el refugio de la mascota; crealas en pregunta.http)
+# responde el texto de las preguntas que faltan (con el seed, la 1 y la 2)
 POST {{baseUrl}}
 Content-Type: application/json
 
 {
   "mascota": 3,
-  "usuario": 13,
+  "usuario": 4,
   "respuestasFormulario": {}
 }
 
 ### GET con estado invalido -> 400
 GET {{baseUrl}}?estado=Cancelada
 
-### PUT con estado invalido -> 400
+### PUT con estado inyectado -> responde 200 pero lo ignora, el estado no cambia
 PUT {{baseUrl}}/1
 Content-Type: application/json
 
 {
-  "estado": "Cancelada"
+  "estado": "Aprobada"
+}
+
+
+# ------- CUU de resolucion: el voluntario aprueba o rechaza -------
+# RN: solo se resuelve una solicitud Pendiente, y solo un voluntario del refugio
+# de la mascota puede hacerlo. El motivo es obligatorio al rechazar.
+# Los ids de abajo son los que carga el seed (pnpm --filter backend seed):
+# la mascota 1 (Mora, refugio 1) tiene las solicitudes 1, 2 y 3 pendientes,
+# y el usuario 1 es la voluntaria de ese refugio.
+
+### Aprobar: la solicitud pasa a Aprobada, la mascota a Reservada,
+### se registra la auditoria y las otras pendientes de esa mascota pasan a Rechazada
+POST {{baseUrl}}/1/resolver
+Content-Type: application/json
+
+{
+  "decision": "Aprobada",
+  "voluntario": 1
+}
+
+### Rechazar: solo cambia la solicitud. La mascota sigue Disponible y no se audita nada
+POST {{baseUrl}}/4/resolver
+Content-Type: application/json
+
+{
+  "decision": "Rechazada",
+  "voluntario": 1,
+  "motivo": "el departamento no tiene espacio suficiente para una mascota grande"
+}
+
+### Resolver una solicitud que ya fue resuelta -> 409
+POST {{baseUrl}}/1/resolver
+Content-Type: application/json
+
+{
+  "decision": "Aprobada",
+  "voluntario": 1
+}
+
+### Voluntario que no pertenece al refugio de la mascota -> 403
+# el usuario 2 es voluntario del refugio 2, y la mascota de la solicitud 4 es del refugio 1
+POST {{baseUrl}}/4/resolver
+Content-Type: application/json
+
+{
+  "decision": "Aprobada",
+  "voluntario": 2
+}
+
+### Rechazar sin motivo -> 400
+POST {{baseUrl}}/2/resolver
+Content-Type: application/json
+
+{
+  "decision": "Rechazada",
+  "voluntario": 1
+}
+
+### Decision invalida (solo Aprobada o Rechazada) -> 400
+POST {{baseUrl}}/2/resolver
+Content-Type: application/json
+
+{
+  "decision": "Pendiente",
+  "voluntario": 1
+}
+
+### Solicitud inexistente -> 404
+POST {{baseUrl}}/999/resolver
+Content-Type: application/json
+
+{
+  "decision": "Aprobada",
+  "voluntario": 1
 }

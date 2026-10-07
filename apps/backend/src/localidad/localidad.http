@@ -2,24 +2,27 @@
 ### GET ALL
 GET {{baseUrl}}
 
+# El seed carga Rosario (1), Funes (2) y Villa Gobernador Galvez (3).
+# El nombre es unico, asi que esta queda con id 4
 ### POST
 POST {{baseUrl}}
 Content-Type:application/json
 
 {
-  "nombre": "Rosario2"
+  "nombre": "Granadero Baigorria"
 }
 
 ### GET ONE
 GET {{baseUrl}}/1
 
-### PUT
-PUT {{baseUrl}}/1
+### PUT (el id 4 es la que creaste arriba)
+PUT {{baseUrl}}/4
 Content-Type: application/json
 
 {
-  "nombre": "Gualeguay"
+  "nombre": "Granadero Baigorria Centro"
 }
 
 ### REMOVE
-DELETE {{baseUrl}}/1
+# Ojo: Rosario y Funes tienen refugios asociados, borrarlas da 409
+DELETE {{baseUrl}}/4

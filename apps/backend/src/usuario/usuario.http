@@ -4,19 +4,20 @@
 GET {{baseUrl}}
 
 
-# Ojo: el rol con ese id tiene que existir. Si no, creá uno primero en rol.http
+# Ojo: el rol con ese id tiene que existir (el seed carga Adoptante=1, Voluntario=2,
+# Administrador=3). El email es unico: los del seed ya estan tomados
 ### 
 # @name createUsuario
 POST {{baseUrl}}
 Content-Type: application/json
 
 {
-  "nombre": "Juan",
-  "apellido": "Perez",
-  "email": "juan.perez@example.com",
+  "nombre": "Marcela",
+  "apellido": "Rios",
+  "email": "marcela.rios@example.com",
   "password": "123456",
-  "telefono": "123456789",
-  "rol": 7
+  "telefono": "3415559001",
+  "rol": 1
 }
 
 
@@ -33,10 +34,10 @@ PUT {{baseUrl}}/{{id}}
 Content-Type: application/json
 
 {
-  "nombre": "Juancito",
-  "apellido": "nuevo",
-  "email": "juancito.nuevo@example.com",
-  "telefono": "987654321"
+  "nombre": "Marcela Beatriz",
+  "apellido": "Rios",
+  "email": "marcela.rios@example.com",
+  "telefono": "3415559002"
 }
 
 
@@ -49,9 +50,9 @@ Content-Type: application/json
   "nombre": "Usuario",
   "apellido": "Eliminar",
   "email": "usuarioaborrar@example.com",
-  "telefono": "555555555",
+  "telefono": "3415559003",
   "password": "123456",
-  "rol": 7
+  "rol": 1
 }
 
 ### ID TO DELETE
