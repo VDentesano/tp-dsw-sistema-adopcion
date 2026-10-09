@@ -76,7 +76,7 @@ function sanitizeRefugioUpdateInput(req: Request, res: Response, next: NextFunct
 async function findAll(req: Request, res: Response){
   try{
     const refugios = await em.find(Refugio,{}, {populate: ['localidad']})
-    res.status(200).json({message: 'find all refugios', data:refugios})
+    res.status(200).json({message: 'refugios encontrados', data:refugios})
   } catch(error){
     responderError(res, error)
   }
@@ -91,9 +91,9 @@ async function findOne(req: Request, res: Response){
     }
     const refugio= await em.findOne(Refugio,{id})
     if(!refugio){
-      return res.status(404).json({message: 'not found refugio'})
+      return res.status(404).json({message: 'refugio no encontrado'})
     }
-    res.status(200).json({message: 'found refugio', data: refugio})
+    res.status(200).json({message: 'refugio encontrado', data: refugio})
   } catch(error){
     responderError(res, error)
   }
@@ -103,7 +103,7 @@ async function add(req: Request, res: Response){
   try{
     const refugio = em.create(Refugio, req.body.sanitizedInput)
     await em.flush()
-    res.status(201).json({message: 'refugio created', data: refugio})
+    res.status(201).json({message: 'refugio creado', data: refugio})
   } catch(error){
     responderError(res, error)
   }
@@ -117,11 +117,11 @@ async function update(req: Request, res: Response){
     }
     const refugio = await em.findOne(Refugio,{id})
     if(!refugio){
-      return res.status(404).json({message: 'not found refugio'})
+      return res.status(404).json({message: 'refugio no encontrado'})
     }
     em.assign(refugio, req.body.sanitizedInput as RefugioInput)
     await em.flush()
-    res.status(200).json({message: 'refugio correctly modified', data: refugio})
+    res.status(200).json({message: 'refugio modificado correctamente', data: refugio})
   } catch(error){
     responderError(res, error)
   }
@@ -135,11 +135,11 @@ async function remove(req: Request, res: Response){
     }
     const refugio = await em.findOne(Refugio,{id})
     if(!refugio){
-      return res.status(404).json({message: 'not found refugio'})
+      return res.status(404).json({message: 'refugio no encontrado'})
     }
     em.remove(refugio)
     await em.flush()
-    res.status(200).json({message: 'refugio deleted', data: refugio})
+    res.status(200).json({message: 'refugio eliminado', data: refugio})
   } catch(error){
     responderError(res, error)
   }

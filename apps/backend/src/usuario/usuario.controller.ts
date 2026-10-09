@@ -158,7 +158,7 @@ async function remove(req: Request, res: Response) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
     await em.remove(usuario).flush();
-    res.status(200).json({ message: 'Usuario eliminado' });
+    res.status(200).json({ message: 'Usuario eliminado', data: usuario });
   } catch (error) {
     responderError(res, error);
   }

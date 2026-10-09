@@ -84,9 +84,9 @@ const findOne = async (req: Request, res: Response) => {
 
 const add = async (req: Request, res: Response) => {
   try {
-    em.create(Raza, req.body.sanitizedInput);
+    const raza = em.create(Raza, req.body.sanitizedInput);
     await em.flush();
-    res.status(201).json({ message: "Raza agregada" });
+    res.status(201).json({ message: "Raza agregada", data: raza });
   } catch (error) {
     responderError(res, error);
   }
@@ -106,7 +106,7 @@ const update = async (req: Request, res: Response) => {
     }
     em.assign(raza, req.body.sanitizedInput as RazaInput);
     await em.flush();
-    res.status(200).json({ message: "Raza actualizada" });
+    res.status(200).json({ message: "Raza actualizada", data: raza });
   } catch (error) {
     responderError(res, error);
   }
@@ -125,7 +125,7 @@ const remove = async (req: Request, res: Response) => {
       return;
     }
     await em.remove(raza).flush();
-    res.status(200).json({ message: "Raza eliminada" });
+    res.status(200).json({ message: "Raza eliminada", data: raza });
   } catch (error) {
     responderError(res, error);
   }

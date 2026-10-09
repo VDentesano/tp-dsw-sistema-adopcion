@@ -113,7 +113,7 @@ async function findAll(req: Request, res: Response){
     }
 
     const mascotas = await em.find(Mascota, filtro, {populate: POPULATE_MASCOTA})
-    res.status(200).json({message: 'find all mascotas', data: mascotas})
+    res.status(200).json({message: 'mascotas encontradas', data: mascotas})
   } catch(error){
     responderError(res, error)
   }
@@ -129,9 +129,9 @@ async function findOne(req: Request, res: Response){
     // el detalle ademas trae la historia clinica con el nombre de cada vacuna
     const mascota= await em.findOne(Mascota,{id}, {populate: [...POPULATE_MASCOTA, 'historiaClinica.vacuna']})
     if(!mascota){
-      return res.status(404).json({message: 'not found mascota'})
+      return res.status(404).json({message: 'mascota no encontrada'})
     }
-    res.status(200).json({message: 'found mascota', data: mascota})
+    res.status(200).json({message: 'mascota encontrada', data: mascota})
   } catch(error){
     responderError(res, error)
   }
@@ -141,7 +141,7 @@ async function add(req: Request, res: Response){
   try{
     const mascota = em.create(Mascota, req.body.sanitizedInput)
     await em.flush()
-    res.status(201).json({message: 'mascota created', data: mascota})
+    res.status(201).json({message: 'mascota creada', data: mascota})
   } catch(error){
     responderError(res, error)
   }
@@ -155,11 +155,11 @@ async function update(req: Request, res: Response){
     }
     const mascota = await em.findOne(Mascota,{id})
     if(!mascota){
-      return res.status(404).json({message: 'not found mascota'})
+      return res.status(404).json({message: 'mascota no encontrada'})
     }
     em.assign(mascota, req.body.sanitizedInput as MascotaInput)
     await em.flush()
-    res.status(200).json({message: 'mascota correctly modified', data: mascota})
+    res.status(200).json({message: 'mascota modificada correctamente', data: mascota})
   } catch(error){
     responderError(res, error)
   }
@@ -173,11 +173,11 @@ async function remove(req: Request, res: Response){
     }
     const mascota = await em.findOne(Mascota,{id})
     if(!mascota){
-      return res.status(404).json({message: 'not found mascota'})
+      return res.status(404).json({message: 'mascota no encontrada'})
     }
     em.remove(mascota)
     await em.flush()
-    res.status(200).json({message: 'mascota deleted', data: mascota})
+    res.status(200).json({message: 'mascota eliminada', data: mascota})
   } catch(error){
     responderError(res, error)
   }

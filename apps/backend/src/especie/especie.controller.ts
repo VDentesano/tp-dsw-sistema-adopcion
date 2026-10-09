@@ -44,9 +44,9 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    em.create(Especie, req.body.sanitizedInput);
+    const especie = em.create(Especie, req.body.sanitizedInput);
     await em.flush();
-    res.status(201).json({ message: "Especie agregada" });
+    res.status(201).json({ message: "Especie agregada", data: especie });
   } catch (error) {
     responderError(res, error);
   }
@@ -66,7 +66,7 @@ async function update(req: Request, res: Response) {
     }
     em.assign(especie, req.body.sanitizedInput);
     await em.flush();
-    res.status(200).json({ message: "Especie actualizada" });
+    res.status(200).json({ message: "Especie actualizada", data: especie });
   } catch (error) {
     responderError(res, error);
   }
@@ -85,7 +85,7 @@ async function remove(req: Request, res: Response) {
       return;
     }
     await em.remove(especie).flush();
-    res.status(200).json({ message: "Especie eliminada" });
+    res.status(200).json({ message: "Especie eliminada", data: especie });
   } catch (error) {
     responderError(res, error);
   }

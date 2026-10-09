@@ -18,7 +18,7 @@ function sanitizeLocalidadInput(req: Request, res: Response, next: NextFunction)
 async function findAll(req: Request, res: Response) {
   try{
     const localidades = await em.find(Localidad,{})
-    res.status(200).json({message:'find all localidades', data:localidades})
+    res.status(200).json({message:'localidades encontradas', data:localidades})
   } catch(error){
     responderError(res, error)
   }
@@ -34,7 +34,7 @@ async function findOne(req: Request, res: Response) {
     if(!localidad){
       return res.status(404).json({message: 'no existe localidad'})
     }
-    res.status(200).json({message:'found localidad', data: localidad})
+    res.status(200).json({message:'localidad encontrada', data: localidad})
   }catch(error){
     responderError(res, error)
   }
@@ -44,7 +44,7 @@ async function add(req: Request, res: Response) {
   try{
     const localidad = em.create(Localidad, req.body.sanitizedInput)
     await em.flush()
-    res.status(201).json({message:'localidad created', data: localidad})
+    res.status(201).json({message:'localidad creada', data: localidad})
   } catch(error){
     responderError(res, error)
   }
@@ -80,7 +80,7 @@ async function remove(req: Request, res: Response) {
     }
     em.remove(localidad)
     await em.flush()
-    res.status(200).json({message:'localidad deleted'})
+    res.status(200).json({message:'localidad eliminada', data: localidad})
   }catch(error){
     responderError(res, error)
   }

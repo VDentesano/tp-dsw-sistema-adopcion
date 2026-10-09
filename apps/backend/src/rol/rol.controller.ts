@@ -42,9 +42,9 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
-    em.create(Rol, req.body.sanitizedInput);
+    const rol = em.create(Rol, req.body.sanitizedInput);
     await em.flush();
-    res.status(201).json({ message: "Rol agregado" });
+    res.status(201).json({ message: "Rol agregado", data: rol });
   } catch (error) {
     responderError(res, error);
   }
@@ -62,7 +62,7 @@ async function update(req: Request, res: Response) {
     }
     em.assign(rol, req.body.sanitizedInput);
     await em.flush();
-    res.status(200).json({ message: "Rol actualizado" });
+    res.status(200).json({ message: "Rol actualizado", data: rol });
   } catch (error) {
     responderError(res, error);
   }
@@ -79,7 +79,7 @@ async function remove(req: Request, res: Response) {
       return res.status(404).json({ message: "Rol no encontrado" });
     }
     await em.remove(rol).flush();
-    res.status(200).json({ message: "Rol eliminado" });
+    res.status(200).json({ message: "Rol eliminado", data: rol });
   } catch (error) {
     responderError(res, error);
   }
