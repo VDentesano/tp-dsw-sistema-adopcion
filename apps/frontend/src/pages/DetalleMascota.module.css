@@ -96,7 +96,61 @@
   background: var(--pasto-oscuro);
 }
 
+.medica {
+  margin-top: 2.5rem;
+}
+
+.medicaTitulo {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.sinVacunas {
+  margin: 0;
+  color: var(--tinta-suave);
+}
+
+.vacunas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--linea);
+}
+
+.vacuna {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.2fr) 1fr 1.3fr;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+
+.vacunaNombre {
+  font-weight: 600;
+}
+
+.obligatoria {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--tinta-suave);
+}
+
+.vacunaDato {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--tinta-suave);
+}
+
 @media (max-width: 720px) {
+  .vacuna {
+    grid-template-columns: 1fr;
+  }
+
   .detalle {
     grid-template-columns: 1fr;
   }

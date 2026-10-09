@@ -85,6 +85,25 @@ export interface MascotaDTO {
   refugio: RefugioResumenDTO;
 }
 
+export interface VacunaDTO {
+  id: number;
+  nombre: string;
+  esObligatoria: boolean;
+}
+
+/** Una vacuna aplicada a una mascota. Las fechas vienen como YYYY-MM-DD. */
+export interface HistoriaClinicaDTO {
+  id: number;
+  fechaAplicacion: string;
+  proximoRefuerzo: string | null;
+  vacuna: VacunaDTO;
+}
+
+/** Mascota como la devuelve GET /api/mascotas/:id: suma la historia clinica, de la mas reciente a la mas vieja. */
+export interface MascotaDetalleDTO extends MascotaDTO {
+  historiaClinica: HistoriaClinicaDTO[];
+}
+
 /** Version resumida que viene anidada en una solicitud (sin populate profundo). */
 export interface MascotaResumenDTO {
   id: number;

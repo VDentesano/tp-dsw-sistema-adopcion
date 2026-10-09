@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router";
 import { buscarMascota } from "../api/mascotas";
 import { useApi } from "../api/useApi";
-import { edadDesde } from "../utils/edad";
+import { edadDesde, formatearFecha, leerFecha } from "../utils/edad";
 import { tonoDeEstado } from "../utils/tonos";
 import { Chapita } from "../components/Chapita";
 import { FotoMascota } from "../components/FotoMascota";
@@ -75,6 +75,39 @@ export function DetalleMascota() {
           )}
         </div>
       </article>
+
+      <section className={s.medica}>
+        <h2 className={s.medicaTitulo}>Ficha médica</h2>
+        {mascota.historiaClinica.length === 0 ? (
+          <p className={s.sinVacunas}>Todavía no tiene vacunas registradas.</p>
+        ) : (
+          <ul className={s.vacunas}>
+            {mascota.historiaClinica.map((aplicacion) => (
+              <li key={aplicacion.id} className={s.vacuna}>
+                <span className={s.vacunaNombre}>
+                  {aplicacion.vacuna.nombre}
+                  {aplicacion.vacuna.esObligatoria && <em className={s.obligatoria}> · obligatoria</em>}
+                </span>
+                <span className={s.vacunaDato}>Aplicada el {formatearFecha(aplicacion.fechaAplicacion)}</span>
+                <span className={s.vacunaDato}>
+                  {aplicacion.proximoRefuerzo
+                    ? `Próximo refuerzo: ${formatearFecha(aplicacion.proximoRefuerzo)}`
+                    : "Sin refuerzo"}
+                  {refuerzoVencido(aplicacion.proximoRefuerzo) && <Chapita tono="rojo">Vencido</Chapita>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </>
   );
+}
+
+// un refuerzo cuya fecha ya paso se marca para que el refugio vea que hay que darlo
+function refuerzoVencido(fecha: string | null): boolean {
+  if (!fecha) return false;
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  return leerFecha(fecha) < hoy;
 }

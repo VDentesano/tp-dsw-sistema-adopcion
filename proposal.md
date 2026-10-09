@@ -170,7 +170,7 @@ erDiagram
     }
 ```
 
-Implementadas hasta ahora: Rol, Localidad, Usuario, Refugio, Especie, Raza, Mascota, Pregunta_Formulario, Solicitud_Adopcion y Auditoria_Estado. Quedan pendientes Vacuna, Historia_Clinica, Seguimiento, Entrevista_Visita y Notificacion.
+Implementadas hasta ahora: Rol, Localidad, Usuario, Refugio, Especie, Raza, Mascota, Pregunta_Formulario, Solicitud_Adopcion, Auditoria_Estado, Vacuna e Historia_Clinica. Quedan pendientes Seguimiento, Entrevista_Visita y Notificacion.
 
 ## Alcance Funcional
 

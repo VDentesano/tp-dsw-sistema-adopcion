@@ -3,7 +3,7 @@ import type { FilterQuery } from "@mikro-orm/core"
 import type { EstadoMascota } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
 import { responderError } from "../shared/errores.js"
-import { camposFaltantes, esFechaValida, esTextoValido, esUrlValida, parsearId } from "../shared/sanitizacion.js"
+import { camposFaltantes, esFechaFutura, esFechaValida, esTextoValido, esUrlValida, parsearId } from "../shared/sanitizacion.js"
 import { ESTADOS_MASCOTA, Mascota } from "./mascota.entity.js"
 
 const em = orm.em
@@ -37,8 +37,7 @@ function leerMascota(body: Record<string, unknown>): MascotaInput | string{
   }
   if(body.fechaDeNac !== undefined){
     if(!esFechaValida(body.fechaDeNac)) return 'fechaDeNac debe ser una fecha valida con formato YYYY-MM-DD'
-    // las dos son YYYY-MM-DD, asi que se pueden comparar como texto
-    if(body.fechaDeNac > new Date().toISOString().slice(0, 10)) return 'fechaDeNac no puede ser una fecha futura'
+    if(esFechaFutura(body.fechaDeNac)) return 'fechaDeNac no puede ser una fecha futura'
     input.fechaDeNac = body.fechaDeNac
   }
   if(body.tamano !== undefined){
@@ -127,7 +126,8 @@ async function findOne(req: Request, res: Response){
     if(!id){
       return res.status(400).json({message: 'id invalido'})
     }
-    const mascota= await em.findOne(Mascota,{id}, {populate: POPULATE_MASCOTA})
+    // el detalle ademas trae la historia clinica con el nombre de cada vacuna
+    const mascota= await em.findOne(Mascota,{id}, {populate: [...POPULATE_MASCOTA, 'historiaClinica.vacuna']})
     if(!mascota){
       return res.status(404).json({message: 'not found mascota'})
     }

@@ -1,0 +1,94 @@
+@baseUrl = http://localhost:3000/api/historias-clinicas
+
+### Listar todas las vacunas aplicadas (la vacuna viene anidada)
+GET {{baseUrl}}
+
+### La historia clinica de una mascota (Mora, id 1)
+GET {{baseUrl}}?mascota=1
+
+### Traer una por id
+GET {{baseUrl}}/1
+
+### Registrar una vacuna aplicada
+# Ojo: la mascota y la vacuna tienen que existir. El seed carga 9, esta queda con id 10.
+# proximoRefuerzo es opcional y tiene que ser posterior a fechaAplicacion
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "vacuna": 2,
+  "fechaAplicacion": "2026-10-01",
+  "proximoRefuerzo": "2027-10-01"
+}
+
+### Modificar (el id 10 es la que creaste arriba)
+PUT {{baseUrl}}/10
+Content-Type: application/json
+
+{
+  "proximoRefuerzo": "2027-04-01"
+}
+
+### Borrar el refuerzo (con null queda sin proximo refuerzo)
+PUT {{baseUrl}}/10
+Content-Type: application/json
+
+{
+  "proximoRefuerzo": null
+}
+
+### Eliminar
+DELETE {{baseUrl}}/10
+
+
+# ------- casos de error -------
+
+### POST sin fechaAplicacion -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "vacuna": 2
+}
+
+### POST con el refuerzo antes de la aplicacion -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "vacuna": 2,
+  "fechaAplicacion": "2026-10-01",
+  "proximoRefuerzo": "2026-01-01"
+}
+
+### POST con una fecha de aplicacion futura -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "vacuna": 2,
+  "fechaAplicacion": "2099-01-01"
+}
+
+### POST con una vacuna que no existe -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "mascota": 3,
+  "vacuna": 9999,
+  "fechaAplicacion": "2026-10-01"
+}
+
+### PUT que deja el refuerzo antes de la aplicacion ya guardada -> 400
+# la 1 es la sextuple de Mora, aplicada el 2025-05-10
+PUT {{baseUrl}}/1
+Content-Type: application/json
+
+{
+  "proximoRefuerzo": "2025-01-01"
+}

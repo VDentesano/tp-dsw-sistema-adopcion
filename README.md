@@ -83,7 +83,7 @@ La base arranca vacía. Para tener algo que mirar en el front, desde la raíz:
 pnpm --filter backend seed
 ```
 
-Carga refugios, razas, usuarios, mascotas, las preguntas del formulario y algunas solicitudes (`apps/backend/src/shared/db/seed.ts`). Es destructivo: **borra todas las filas y las vuelve a cargar**, así los ids son siempre los mismos. Se puede correr todas las veces que haga falta para volver a un estado conocido.
+Carga refugios, razas, usuarios, mascotas, vacunas con su historia clínica, las preguntas del formulario y algunas solicitudes (`apps/backend/src/shared/db/seed.ts`). Es destructivo: **borra todas las filas y las vuelve a cargar**, así los ids son siempre los mismos. Se puede correr todas las veces que haga falta para volver a un estado conocido.
 
 Qué queda cargado:
 
@@ -92,10 +92,11 @@ Qué queda cargado:
 | Juan Perez (usuario id 3, rol Adoptante) | es el usuario demo del front, el que se postula |
 | Lucia Gomez (usuario id 1, rol Voluntario de *Patitas al Rescate*) | el que va a resolver solicitudes |
 | 8 mascotas en los 4 estados, en 2 refugios | el catálogo y sus filtros. Dos quedan sin foto para ver el placeholder |
+| 5 vacunas y 9 aplicaciones en 5 mascotas | la ficha médica del detalle. Mora y Pelusa tienen un refuerzo vencido y Nina no tiene ninguna vacuna |
 | 6 preguntas de formulario, una inactiva | el formulario dinámico y la regla de inmutabilidad de las preguntas |
 | 4 solicitudes pendientes (3 son de la misma mascota), 1 aprobada y 1 rechazada | el listado por estado y el CUU de resolución |
 
-También se pueden cargar datos a mano con los archivos `.http` de cada entidad (en VS Code con la extensión REST Client), respetando el orden de las relaciones: `rol`, `especie` y `localidad` primero, después `raza` (necesita especie), `refugio` (necesita localidad), `usuario` (necesita rol), `mascota` (necesita raza y refugio) y `pregunta` (necesita refugio). Ojo que los ids de los ejemplos pueden no coincidir con los de tu base.
+También se pueden cargar datos a mano con los archivos `.http` de cada entidad (en VS Code con la extensión REST Client), respetando el orden de las relaciones: `rol`, `especie` y `localidad` primero, después `raza` (necesita especie), `refugio` (necesita localidad), `usuario` (necesita rol), `mascota` (necesita raza y refugio), `pregunta` (necesita refugio), `vacuna` y por último `historia_clinica` (necesita mascota y vacuna). Ojo que los ids de los ejemplos pueden no coincidir con los de tu base.
 
 Como todavía no hay login, en el header del front hay un selector para elegir con qué usuario de prueba entrar: Juan Perez (adoptante, id 3), Lucia Gomez (voluntaria de *Patitas al Rescate*, id 1) o Martin Suarez (voluntario de *Huellitas Funes*, id 2). La lista está en `apps/frontend/src/sesion/SesionContext.tsx` y usa los ids que carga el seed: si cargaste los datos a mano, cambiá los `id` por los de usuarios que existan.
 
@@ -125,6 +126,8 @@ Todas las rutas cuelgan de `http://localhost:3000/api`, en plural. Cada recurso 
 | Mascota | `/mascotas` | `?estado=Disponible&tamano=Mediano` |
 | Pregunta del formulario | `/preguntas` | `?refugio=1&activa=true` |
 | Solicitud de adopción | `/solicitudes` | `?estado=Pendiente&usuario=1&mascota=1&refugio=1` |
+| Vacuna | `/vacunas` | |
+| Historia clínica (vacunas aplicadas) | `/historias-clinicas` | `?mascota=1` |
 
 Además de los CRUD hay un endpoint de negocio:
 
@@ -155,7 +158,7 @@ Los errores responden `{ message }` con estos códigos:
 - [x] CRUD simple: Refugio, Usuario, Especie, Rol
 - [x] CRUD dependiente: Mascota, Raza
 - [x] Catálogo de mascotas filtrado por estado y tamaño
-- [ ] Detalle de mascota con ficha médica y vacunas
+- [x] Detalle de mascota con ficha médica y vacunas
 - [x] Gestión de solicitudes para el voluntario (listado por estado y detalle del formulario)
 - [x] CUU Postulación con formulario dinámico
 - [x] CUU Resolución de solicitudes con auditoría de estados
@@ -190,3 +193,4 @@ Los errores responden `{ message }` con estos códigos:
 26) Sacamos el `estado` de los `PUT` genéricos de mascota y solicitud, y le agregamos el campo `motivo` a la solicitud. Hasta acá el CRUD permitía mandar `{"estado": "Aprobada"}` y saltearse el CUU entero: sin auditoría, sin rechazar las otras postulaciones y sin verificar el refugio. Ahora una mascota nueva nace `Disponible` por el valor por defecto de la entity, y el único camino para cambiar un estado es resolver una solicitud
 27) Limpieza de configuración: sacamos los datos de conexión a MySQL de `orm.ts` y los pasamos a variables de entorno (`apps/backend/.env`, con un `.env.example` de plantilla). Los scripts le pasan a Node `--env-file-if-exists`, así que no hizo falta instalar dotenv. Renombramos el script `publish` a `build`, borramos la config `mikro-orm.configPaths` del package.json (apuntaba a un archivo que no existe) y actualizamos los `.http` de todas las entidades para que los ids coincidan con los que carga el seed
 28) Hicimos el front de la gestión de solicitudes del voluntario: un listado (`/refugio/solicitudes`) filtrado por estado que muestra fecha, postulante y mascota, y un detalle (`/refugio/solicitudes/:id`) con los datos de contacto, el formulario completo y los botones para aprobar o rechazar, que usan el endpoint de resolución. El motivo es obligatorio para rechazar, así que el botón queda deshabilitado hasta que se escribe. Las respuestas se muestran con el texto de cada pregunta, aunque el refugio la haya desactivado después. Al listado de solicitudes le sumamos el filtro `?refugio=`, para que cada voluntario vea solo las de las mascotas de su refugio, y en el header agregamos un selector de usuario de prueba para poder entrar como adoptante o como voluntario hasta que exista el login
+29) Hicimos la ficha médica: creamos las entities `Vacuna` (nombre y si es obligatoria) e `Historia_Clinica` (cada fila es una vacuna aplicada a una mascota, con la fecha de aplicación y la del próximo refuerzo), con su CRUD, sus `.http` y datos en el seed. El `GET /api/mascotas/:id` ahora trae la historia clínica con el nombre de cada vacuna, y el detalle de la mascota en el front la muestra en una sección nueva, marcando los refuerzos vencidos. El próximo refuerzo tiene que ser posterior a la aplicación, y la aplicación no puede ser una fecha futura. De paso arreglamos las fechas sin hora en el front: `new Date("2025-05-10")` se toma como medianoche UTC y en Argentina se mostraba el día anterior. También pasamos a `sanitizacion.ts` el chequeo de "fecha futura" que usaban mascota e historia clínica: comparaba contra la fecha UTC, así que desde las 21 hs dejaba cargar la fecha de mañana. En el `PUT` de historia clínica, `"proximoRefuerzo": null` borra el refuerzo

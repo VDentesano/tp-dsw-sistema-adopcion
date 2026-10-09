@@ -4,6 +4,7 @@ import { BaseEntity } from "../shared/db/baseEntity.entity.js";
 import { Raza } from "../raza/raza.entity.js";
 import { Refugio } from "../refugio/refugio.entity.js";
 import { Solicitud_Adopcion } from "../solicitud_adopcion/solicitud_adopcion.entity.js";
+import { Historia_Clinica } from "../historia_clinica/historia_clinica.entity.js";
 import { Collection } from "@mikro-orm/core";
 import type { EstadoMascota } from "@proyecto/types";
 
@@ -51,5 +52,9 @@ export class Mascota extends BaseEntity {
 
   @OneToMany(() => Solicitud_Adopcion, (solicitud_adopcion) => solicitud_adopcion.mascota)
   solicitudes_adopcion= new Collection<Solicitud_Adopcion> (this)
+
+  // las vacunas aplicadas, de la mas reciente a la mas vieja
+  @OneToMany(() => Historia_Clinica, (historia) => historia.mascota, { orderBy: { fechaAplicacion: "desc" } })
+  historiaClinica = new Collection<Historia_Clinica>(this)
 
 }

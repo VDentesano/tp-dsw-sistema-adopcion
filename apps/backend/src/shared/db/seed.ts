@@ -17,6 +17,8 @@ import { Mascota } from "../../mascota/mascota.entity.js";
 import { Pregunta_Formulario } from "../../pregunta/pregunta.entity.js";
 import { Solicitud_Adopcion } from "../../solicitud_adopcion/solicitud_adopcion.entity.js";
 import { Auditoria_Estado } from "../../auditoria_estado/auditoria_estado.entity.js";
+import { Vacuna } from "../../vacuna/vacuna.entity.js";
+import { Historia_Clinica } from "../../historia_clinica/historia_clinica.entity.js";
 
 // por si la base esta vieja: crea las tablas que falten antes de insertar
 await syncSchema();
@@ -28,10 +30,12 @@ const em = orm.em.fork();
   Si se borrara al reves, MySQL rechazaria el delete por las foreign keys.
 */
 const entidades: EntityClass<object>[] = [
+  Historia_Clinica,
   Auditoria_Estado,
   Solicitud_Adopcion,
   Pregunta_Formulario,
   Mascota,
+  Vacuna,
   Usuario,
   Refugio,
   Raza,
@@ -185,7 +189,7 @@ const nina = em.create(Mascota, {
   refugio: patitas,
 });
 
-em.create(Mascota, {
+const simba = em.create(Mascota, {
   id: 4,
   nombre: "Simba",
   fechaDeNac: "2021-01-09",
@@ -196,7 +200,7 @@ em.create(Mascota, {
   refugio: patitas,
 });
 
-em.create(Mascota, {
+const pelusa = em.create(Mascota, {
   id: 5,
   nombre: "Pelusa",
   fechaDeNac: "2020-08-30",
@@ -207,7 +211,7 @@ em.create(Mascota, {
   refugio: patitas,
 });
 
-em.create(Mascota, {
+const rocco = em.create(Mascota, {
   id: 6,
   nombre: "Rocco",
   fechaDeNac: "2018-05-17",
@@ -242,6 +246,31 @@ const bruno = em.create(Mascota, {
   raza: mestizoPerro,
   refugio: huellitas,
 });
+
+// --------- vacunas e historia clinica ---------
+// Mora y Pelusa tienen un refuerzo vencido y Nina no tiene ninguna vacuna cargada,
+// para ver esos casos en el detalle de la mascota
+
+const antirrabica = em.create(Vacuna, { id: 1, nombre: "Antirrabica", esObligatoria: true });
+const sextuple = em.create(Vacuna, { id: 2, nombre: "Sextuple", esObligatoria: true });
+const tripleFelina = em.create(Vacuna, { id: 3, nombre: "Triple felina", esObligatoria: true });
+const tosDeLasPerreras = em.create(Vacuna, { id: 4, nombre: "Tos de las perreras", esObligatoria: false });
+const leucemiaFelina = em.create(Vacuna, { id: 5, nombre: "Leucemia felina", esObligatoria: false });
+
+const aplicaciones = [
+  { id: 1, mascota: mora, vacuna: sextuple, fechaAplicacion: "2025-05-10", proximoRefuerzo: "2026-05-10" },
+  { id: 2, mascota: mora, vacuna: antirrabica, fechaAplicacion: "2025-11-03", proximoRefuerzo: "2026-11-03" },
+  { id: 3, mascota: tito, vacuna: sextuple, fechaAplicacion: "2026-02-15", proximoRefuerzo: "2027-02-15" },
+  { id: 4, mascota: tito, vacuna: antirrabica, fechaAplicacion: "2026-02-15", proximoRefuerzo: "2027-02-15" },
+  { id: 5, mascota: tito, vacuna: tosDeLasPerreras, fechaAplicacion: "2026-03-01" },
+  { id: 6, mascota: simba, vacuna: tripleFelina, fechaAplicacion: "2026-01-20", proximoRefuerzo: "2027-01-20" },
+  { id: 7, mascota: simba, vacuna: leucemiaFelina, fechaAplicacion: "2026-01-20", proximoRefuerzo: "2027-01-20" },
+  { id: 8, mascota: pelusa, vacuna: tripleFelina, fechaAplicacion: "2025-09-01", proximoRefuerzo: "2026-09-01" },
+  { id: 9, mascota: rocco, vacuna: antirrabica, fechaAplicacion: "2026-06-10", proximoRefuerzo: "2027-06-10" },
+];
+for (const aplicacion of aplicaciones) {
+  em.create(Historia_Clinica, aplicacion);
+}
 
 // --------- preguntas del formulario dinamico ---------
 // la 4 esta inactiva a proposito: sirve para probar que el detalle de una solicitud

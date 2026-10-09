@@ -32,6 +32,19 @@ export function esFechaValida(valor: unknown): valor is string{
   return !isNaN(fecha.getTime()) && fecha.toISOString().startsWith(valor)
 }
 
+// recibe una fecha YYYY-MM-DD ya validada. Compara contra el dia local y no contra toISOString(),
+// que es UTC: desde las 21 hs de Argentina ya da el dia siguiente y dejaria pasar la fecha de mañana
+export function esFechaFutura(fecha: string): boolean{
+  const ahora = new Date()
+  const hoy = [
+    ahora.getFullYear(),
+    String(ahora.getMonth() + 1).padStart(2, '0'),
+    String(ahora.getDate()).padStart(2, '0'),
+  ].join('-')
+  // las dos son YYYY-MM-DD, asi que se pueden comparar como texto
+  return fecha > hoy
+}
+
 // solo links http o https (se usan como src de una imagen en el front)
 export function esUrlValida(valor: unknown): valor is string{
   if(typeof valor !== 'string'){

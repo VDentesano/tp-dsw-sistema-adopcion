@@ -12,6 +12,8 @@ import { mascotaRouter } from "./mascota/mascota.routes.js";
 import { refugioRouter } from "./refugio/refugio.routes.js";
 import { solicitud_adopcion_router } from "./solicitud_adopcion/solicitud_adopcion.routes.js";
 import { preguntaRouter } from "./pregunta/pregunta.routes.js";
+import { vacunaRouter } from "./vacuna/vacuna.routes.js";
+import { historiaClinicaRouter } from "./historia_clinica/historia_clinica.routes.js";
 
 const app = express();
 
@@ -39,6 +41,8 @@ app.use("/api/mascotas", mascotaRouter);
 app.use("/api/refugios", refugioRouter);
 app.use("/api/solicitudes", solicitud_adopcion_router);
 app.use("/api/preguntas", preguntaRouter);
+app.use("/api/vacunas", vacunaRouter);
+app.use("/api/historias-clinicas", historiaClinicaRouter);
 
 // si ninguna ruta de arriba coincidio, respondemos 404 en JSON (Express por defecto manda HTML)
 app.use((req, res) => {

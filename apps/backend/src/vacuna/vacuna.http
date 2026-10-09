@@ -1,0 +1,57 @@
+@baseUrl = http://localhost:3000/api/vacunas
+
+### Listar todas las vacunas (ordenadas por nombre)
+GET {{baseUrl}}
+
+### Traer una vacuna por id
+GET {{baseUrl}}/1
+
+### Crear una vacuna (esObligatoria es opcional, por defecto false)
+# El nombre es unico: las 5 del seed ya estan tomadas. Esta queda con id 6
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Giardia",
+  "esObligatoria": false
+}
+
+### Modificar una vacuna (el id 6 es la que creaste arriba)
+PUT {{baseUrl}}/6
+Content-Type: application/json
+
+{
+  "esObligatoria": true
+}
+
+### Eliminar una vacuna
+# Ojo: las vacunas del seed estan aplicadas en alguna historia clinica, borrarlas da 409
+DELETE {{baseUrl}}/6
+
+
+# ------- casos de error -------
+
+### POST sin nombre -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "esObligatoria": true
+}
+
+### POST con esObligatoria que no es booleano -> 400
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Moquillo",
+  "esObligatoria": "si"
+}
+
+### POST con un nombre repetido -> 409
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "nombre": "Antirrabica"
+}

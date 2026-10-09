@@ -1,4 +1,4 @@
-import type { MascotaDTO } from "@proyecto/types";
+import type { MascotaDetalleDTO, MascotaDTO } from "@proyecto/types";
 import { api } from "./client";
 
 /**
@@ -11,6 +11,6 @@ export function listarMascotasDisponibles(tamano?: string): Promise<MascotaDTO[]
   return api<MascotaDTO[]>(`/mascotas?${params}`);
 }
 
-export function buscarMascota(id: number): Promise<MascotaDTO> {
-  return api<MascotaDTO>(`/mascotas/${id}`);
+export function buscarMascota(id: number): Promise<MascotaDetalleDTO> {
+  return api<MascotaDetalleDTO>(`/mascotas/${id}`);
 }
