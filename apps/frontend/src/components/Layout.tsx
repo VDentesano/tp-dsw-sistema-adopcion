@@ -3,7 +3,8 @@ import { useSesion } from "../sesion/useSesion";
 import s from "./Layout.module.css";
 
 export function Layout() {
-  const { usuario } = useSesion();
+  const { usuario, usuariosDemo, cambiarUsuario } = useSesion();
+  const esVoluntario = usuario.rol === "Voluntario";
 
   return (
     <div className={s.pagina}>
@@ -24,14 +25,28 @@ export function Layout() {
           <NavLink to="/mascotas" className={({ isActive }) => (isActive ? s.activo : s.link)}>
             En adopción
           </NavLink>
-          <NavLink to="/solicitudes" className={({ isActive }) => (isActive ? s.activo : s.link)}>
-            Mis solicitudes
+          <NavLink
+            to={esVoluntario ? "/refugio/solicitudes" : "/solicitudes"}
+            className={({ isActive }) => (isActive ? s.activo : s.link)}
+          >
+            {esVoluntario ? "Solicitudes del refugio" : "Mis solicitudes"}
           </NavLink>
         </nav>
 
-        <span className={s.sesion} title="Sesión de prueba hasta que exista el login">
-          {usuario.nombre} {usuario.apellido} · demo
-        </span>
+        {/* hasta que exista el login se elige con qué usuario de prueba se entra */}
+        <select
+          className={s.sesion}
+          title="Sesión de prueba hasta que exista el login"
+          aria-label="Usuario de prueba"
+          value={usuario.id}
+          onChange={(e) => cambiarUsuario(Number(e.target.value))}
+        >
+          {usuariosDemo.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.nombre} {u.apellido} · {u.rol.toLowerCase()}
+            </option>
+          ))}
+        </select>
       </header>
 
       <main className={s.contenido}>

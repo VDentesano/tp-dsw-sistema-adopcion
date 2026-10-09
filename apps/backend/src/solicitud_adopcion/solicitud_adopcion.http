@@ -12,6 +12,9 @@ GET {{baseUrl}}?usuario=3
 ### Listar solicitudes de una mascota
 GET {{baseUrl}}?mascota=1
 
+### Listar las solicitudes de las mascotas de un refugio (lo que ve el voluntario)
+GET {{baseUrl}}?refugio=1&estado=Pendiente
+
 
 # Ojo: la mascota tiene que existir y estar "Disponible", y el usuario tiene que existir.
 # Las claves de respuestasFormulario son los ids de las preguntas: hay que responder

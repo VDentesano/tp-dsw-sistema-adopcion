@@ -123,11 +123,19 @@ async function findAll(req: Request, res: Response){
     }
     const usuario = parsearId(req.query.usuario)
     const mascota = parsearId(req.query.mascota)
+    // el voluntario solo ve las solicitudes de las mascotas de su refugio
+    const refugio = parsearId(req.query.refugio)
+
+    // mascota y refugio filtran los dos sobre la mascota: van en el mismo objeto para no pisarse
+    const filtroMascota = {
+      ...(mascota ? {id: mascota} : {}),
+      ...(refugio ? {refugio} : {}),
+    }
 
     const filtro: FilterQuery<Solicitud_Adopcion> = {
       ...(estado ? {estado} : {}),
       ...(usuario ? {usuario} : {}),
-      ...(mascota ? {mascota} : {}),
+      ...(mascota || refugio ? {mascota: filtroMascota} : {}),
     }
 
     const solicitudes = await em.find(Solicitud_Adopcion, filtro, {populate:['mascota','usuario']})

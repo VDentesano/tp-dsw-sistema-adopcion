@@ -1,0 +1,108 @@
+.titulo {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+}
+
+.bajada {
+  margin: 0.5rem 0 1.5rem;
+  color: var(--tinta-suave);
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.filtro,
+.filtroActivo {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.35rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--linea);
+  cursor: pointer;
+}
+
+.filtro {
+  background: var(--carta);
+  color: var(--tinta-suave);
+}
+
+.filtro:hover {
+  color: var(--tinta);
+  border-color: var(--tinta-suave);
+}
+
+.filtroActivo {
+  background: var(--pasto);
+  border-color: var(--pasto);
+  color: #fdfcf6;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr auto;
+  grid-template-areas:
+    "fecha postulante chapita"
+    "fecha mascota chapita";
+  align-items: center;
+  gap: 0 1.25rem;
+  padding: 0.9rem 1.25rem;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  color: var(--tinta);
+  text-decoration: none;
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+
+.fila:hover {
+  border-color: var(--tinta-suave);
+  box-shadow: var(--sombra-alta);
+}
+
+.fila > :last-child {
+  grid-area: chapita;
+}
+
+.fecha {
+  grid-area: fecha;
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}
+
+.postulante {
+  grid-area: postulante;
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.mascota {
+  grid-area: mascota;
+  font-size: 0.9rem;
+  color: var(--tinta-suave);
+}
+
+@media (max-width: 560px) {
+  .fila {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "postulante chapita"
+      "mascota chapita"
+      "fecha fecha";
+  }
+}

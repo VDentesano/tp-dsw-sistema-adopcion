@@ -97,7 +97,7 @@ Qué queda cargado:
 
 También se pueden cargar datos a mano con los archivos `.http` de cada entidad (en VS Code con la extensión REST Client), respetando el orden de las relaciones: `rol`, `especie` y `localidad` primero, después `raza` (necesita especie), `refugio` (necesita localidad), `usuario` (necesita rol), `mascota` (necesita raza y refugio) y `pregunta` (necesita refugio). Ojo que los ids de los ejemplos pueden no coincidir con los de tu base.
 
-Como todavía no hay login, el front usa un usuario demo fijo definido en `apps/frontend/src/sesion/SesionContext.tsx`. Apunta al usuario id 3 que carga el seed: si cargaste los datos a mano, cambiá el `id` por el de un usuario que exista.
+Como todavía no hay login, en el header del front hay un selector para elegir con qué usuario de prueba entrar: Juan Perez (adoptante, id 3), Lucia Gomez (voluntaria de *Patitas al Rescate*, id 1) o Martin Suarez (voluntario de *Huellitas Funes*, id 2). La lista está en `apps/frontend/src/sesion/SesionContext.tsx` y usa los ids que carga el seed: si cargaste los datos a mano, cambiá los `id` por los de usuarios que existan.
 
 ### Otros comandos
 
@@ -124,7 +124,7 @@ Todas las rutas cuelgan de `http://localhost:3000/api`, en plural. Cada recurso 
 | Usuario | `/usuarios` | |
 | Mascota | `/mascotas` | `?estado=Disponible&tamano=Mediano` |
 | Pregunta del formulario | `/preguntas` | `?refugio=1&activa=true` |
-| Solicitud de adopción | `/solicitudes` | `?estado=Pendiente&usuario=1&mascota=1` |
+| Solicitud de adopción | `/solicitudes` | `?estado=Pendiente&usuario=1&mascota=1&refugio=1` |
 
 Además de los CRUD hay un endpoint de negocio:
 
@@ -156,7 +156,7 @@ Los errores responden `{ message }` con estos códigos:
 - [x] CRUD dependiente: Mascota, Raza
 - [x] Catálogo de mascotas filtrado por estado y tamaño
 - [ ] Detalle de mascota con ficha médica y vacunas
-- [ ] Gestión de solicitudes para el voluntario (listado por estado y detalle del formulario)
+- [x] Gestión de solicitudes para el voluntario (listado por estado y detalle del formulario)
 - [x] CUU Postulación con formulario dinámico
 - [x] CUU Resolución de solicitudes con auditoría de estados
 
@@ -189,3 +189,4 @@ Los errores responden `{ message }` con estos códigos:
 25) Hicimos el CUU de resolución: creamos la entity `Auditoria_Estado` (que guarda estado anterior, estado nuevo, fecha y motivo de cada cambio de una mascota) y el endpoint `POST /api/solicitudes/:id/resolver`. Solo se puede resolver una solicitud pendiente, y solo un voluntario del refugio de la mascota. Al aprobar, dentro de una transacción, la solicitud pasa a Aprobada, la mascota a Reservada (tiene dueño pero todavía no fue entregada), se registra la auditoría y las demás postulaciones a esa mascota se rechazan solas. Al rechazar solo cambia la solicitud. El cambio de estado de la mascota vive en un único lugar (`auditoria_estado.service.ts`) para que nunca se pueda cambiar sin dejar rastro
 26) Sacamos el `estado` de los `PUT` genéricos de mascota y solicitud, y le agregamos el campo `motivo` a la solicitud. Hasta acá el CRUD permitía mandar `{"estado": "Aprobada"}` y saltearse el CUU entero: sin auditoría, sin rechazar las otras postulaciones y sin verificar el refugio. Ahora una mascota nueva nace `Disponible` por el valor por defecto de la entity, y el único camino para cambiar un estado es resolver una solicitud
 27) Limpieza de configuración: sacamos los datos de conexión a MySQL de `orm.ts` y los pasamos a variables de entorno (`apps/backend/.env`, con un `.env.example` de plantilla). Los scripts le pasan a Node `--env-file-if-exists`, así que no hizo falta instalar dotenv. Renombramos el script `publish` a `build`, borramos la config `mikro-orm.configPaths` del package.json (apuntaba a un archivo que no existe) y actualizamos los `.http` de todas las entidades para que los ids coincidan con los que carga el seed
+28) Hicimos el front de la gestión de solicitudes del voluntario: un listado (`/refugio/solicitudes`) filtrado por estado que muestra fecha, postulante y mascota, y un detalle (`/refugio/solicitudes/:id`) con los datos de contacto, el formulario completo y los botones para aprobar o rechazar, que usan el endpoint de resolución. El motivo es obligatorio para rechazar, así que el botón queda deshabilitado hasta que se escribe. Las respuestas se muestran con el texto de cada pregunta, aunque el refugio la haya desactivado después. Al listado de solicitudes le sumamos el filtro `?refugio=`, para que cada voluntario vea solo las de las mascotas de su refugio, y en el header agregamos un selector de usuario de prueba para poder entrar como adoptante o como voluntario hasta que exista el login

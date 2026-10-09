@@ -93,11 +93,23 @@ export interface MascotaResumenDTO {
   tamano: string | null;
   estado: EstadoMascota | null;
   fotoURL: string | null;
+  /** Sin populate: viene solo el id del refugio. */
+  refugio: number;
+}
+
+/** Postulante como viene anidado en una solicitud (el password nunca se serializa). */
+export interface UsuarioResumenDTO {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
 }
 
 // ---------- Solicitud de adopcion ----------
 
-export type EstadoSolicitud = "Pendiente" | "Aprobada" | "Rechazada";
+export const ESTADOS_SOLICITUD = ["Pendiente", "Aprobada", "Rechazada"] as const;
+export type EstadoSolicitud = (typeof ESTADOS_SOLICITUD)[number];
 
 /**
  * Respuestas del formulario dinamico de postulacion.
@@ -118,7 +130,10 @@ export interface SolicitudDTO {
   fechaSolicitud: string;
   estado: EstadoSolicitud;
   respuestasFormulario: RespuestasFormulario;
+  /** Lo carga el voluntario al resolver: obligatorio al rechazar, opcional al aprobar. */
+  motivo: string | null;
   mascota: MascotaResumenDTO;
+  usuario: UsuarioResumenDTO;
 }
 // ---------- Resolucion de solicitud ----------
 export const DECISIONES_SOLICITUD = ["Aprobada","Rechazada"] as const;

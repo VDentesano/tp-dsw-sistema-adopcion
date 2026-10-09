@@ -4,6 +4,8 @@ import { CatalogoMascotas } from "./pages/CatalogoMascotas";
 import { DetalleMascota } from "./pages/DetalleMascota";
 import { PostulacionForm } from "./pages/PostulacionForm";
 import { MisSolicitudes } from "./pages/MisSolicitudes";
+import { SolicitudesRefugio } from "./pages/SolicitudesRefugio";
+import { DetalleSolicitud } from "./pages/DetalleSolicitud";
 import { Aviso } from "./components/Aviso";
 
 function App() {
@@ -15,6 +17,8 @@ function App() {
         <Route path="/mascotas/:id" element={<DetalleMascota />} />
         <Route path="/mascotas/:id/postular" element={<PostulacionForm />} />
         <Route path="/solicitudes" element={<MisSolicitudes />} />
+        <Route path="/refugio/solicitudes" element={<SolicitudesRefugio />} />
+        <Route path="/refugio/solicitudes/:id" element={<DetalleSolicitud />} />
         <Route path="*" element={<Aviso>Esta página no existe.</Aviso>} />
       </Route>
     </Routes>

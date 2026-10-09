@@ -5,6 +5,7 @@ import { useApi } from "../api/useApi";
 import { useSesion } from "../sesion/useSesion";
 import { formatearFecha } from "../utils/edad";
 import { tonoDeEstado } from "../utils/tonos";
+import { mostrarRespuesta } from "../utils/respuestas";
 import { Chapita } from "../components/Chapita";
 import { Aviso, Cargando } from "../components/Aviso";
 import s from "./MisSolicitudes.module.css";
@@ -64,9 +65,7 @@ export function MisSolicitudes() {
                       {respuestas.map(([pregunta, respuesta]) => (
                         <div key={pregunta} className={s.respuesta}>
                           <dt>{data?.textoPorId.get(pregunta) ?? pregunta}</dt>
-                          <dd>
-                            {typeof respuesta === "boolean" ? (respuesta ? "Sí" : "No") : String(respuesta)}
-                          </dd>
+                          <dd>{mostrarRespuesta(respuesta)}</dd>
                         </div>
                       ))}
                     </dl>

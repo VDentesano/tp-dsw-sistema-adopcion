@@ -57,6 +57,13 @@
   border-radius: 999px;
   padding: 0.2rem 0.7rem;
   white-space: nowrap;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sesion option {
+  color: var(--tinta);
 }
 
 .contenido {
