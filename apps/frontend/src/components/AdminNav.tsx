@@ -3,8 +3,12 @@ import s from "../pages/Abm.module.css";
 
 // cada CRUD nuevo se suma aca y queda en las pestañas de todas las pantallas de administracion
 const SECCIONES = [
-  { ruta: "/admin/especies", etiqueta: "Especies" },
+  { ruta: "/admin/mascotas", etiqueta: "Mascotas" },
   { ruta: "/admin/razas", etiqueta: "Razas" },
+  { ruta: "/admin/especies", etiqueta: "Especies" },
+  { ruta: "/admin/refugios", etiqueta: "Refugios" },
+  { ruta: "/admin/localidades", etiqueta: "Localidades" },
+  { ruta: "/admin/usuarios", etiqueta: "Usuarios" },
 ];
 
 /** Pestañas para moverse entre los ABM del voluntario. */

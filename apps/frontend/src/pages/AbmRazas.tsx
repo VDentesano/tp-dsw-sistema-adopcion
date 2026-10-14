@@ -3,35 +3,29 @@ import { Link } from "react-router";
 import type { RazaDTO } from "@proyecto/types";
 import { crearRaza, eliminarRaza, listarRazas, modificarRaza } from "../api/razas";
 import { listarEspecies } from "../api/especies";
-import { ApiError } from "../api/client";
-import { useApi } from "../api/useApi";
+import { useAbm } from "../api/useAbm";
 import { useSesion } from "../sesion/useSesion";
 import { AdminNav } from "../components/AdminNav";
+import { BotonesFila, BotonesFormulario } from "../components/AbmControles";
 import { Aviso, Cargando } from "../components/Aviso";
 import s from "./Abm.module.css";
+
+async function cargar() {
+  const [razas, especies] = await Promise.all([listarRazas(), listarEspecies()]);
+  // agrupadas por especie y en orden alfabetico, para encontrarlas facil
+  razas.sort((a, b) => a.especie.nombre.localeCompare(b.especie.nombre) || a.nombre.localeCompare(b.nombre));
+  return { razas, especies };
+}
 
 /** ABM de razas. Cada raza depende de una especie, que se elige de un select. */
 export function AbmRazas() {
   const { usuario } = useSesion();
-
-  // se incrementa despues de cada alta, modificacion o baja para volver a pedir el listado
-  const [version, setVersion] = useState(0);
-  const { data, cargando, error } = useApi(async () => {
-    const [razas, especies] = await Promise.all([listarRazas(), listarEspecies()]);
-    // agrupadas por especie y en orden alfabetico, para encontrarlas facil
-    razas.sort(
-      (a, b) => a.especie.nombre.localeCompare(b.especie.nombre) || a.nombre.localeCompare(b.nombre),
-    );
-    return { razas, especies };
-  }, [version]);
+  const { data, cargando, error, guardando, errorAccion, aviso, ejecutar, limpiarAvisos } = useAbm(cargar);
 
   const [editando, setEditando] = useState<RazaDTO | null>(null);
   const [nombre, setNombre] = useState("");
   // el id de la especie como string, que es lo que maneja el select; "" es sin elegir
   const [especieId, setEspecieId] = useState("");
-  const [guardando, setGuardando] = useState(false);
-  const [errorAccion, setErrorAccion] = useState<string | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
 
   if (usuario.rol !== "Voluntario") {
     return <Aviso>Esta sección es para los voluntarios de un refugio.</Aviso>;
@@ -41,8 +35,7 @@ export function AbmRazas() {
     setEditando(raza);
     setNombre(raza.nombre);
     setEspecieId(String(raza.especie.id));
-    setErrorAccion(null);
-    setAviso(null);
+    limpiarAvisos();
   }
 
   function limpiarFormulario() {
@@ -53,42 +46,25 @@ export function AbmRazas() {
 
   async function guardar(e: FormEvent) {
     e.preventDefault();
-    setErrorAccion(null);
-    setAviso(null);
-    setGuardando(true);
-    try {
-      const dto = { nombre: nombre.trim(), especie: Number(especieId) };
-      if (editando) {
-        await modificarRaza(editando.id, dto);
-        setAviso(`Se modificó la raza ${dto.nombre}.`);
-      } else {
-        await crearRaza(dto);
-        setAviso(`Se agregó la raza ${dto.nombre}.`);
-      }
-      limpiarFormulario();
-      setVersion((v) => v + 1);
-    } catch (e) {
-      setErrorAccion(e instanceof ApiError ? e.message : "No se pudo guardar la raza.");
-    } finally {
-      setGuardando(false);
-    }
+    const dto = { nombre: nombre.trim(), especie: Number(especieId) };
+    const ok = editando
+      ? await ejecutar(
+          () => modificarRaza(editando.id, dto),
+          `Se modificó la raza ${dto.nombre}.`,
+          "No se pudo guardar la raza.",
+        )
+      : await ejecutar(() => crearRaza(dto), `Se agregó la raza ${dto.nombre}.`, "No se pudo guardar la raza.");
+    if (ok) limpiarFormulario();
   }
 
   async function eliminar(raza: RazaDTO) {
     if (!window.confirm(`¿Eliminar la raza ${raza.nombre}?`)) return;
-    setErrorAccion(null);
-    setAviso(null);
-    setGuardando(true);
-    try {
-      await eliminarRaza(raza.id);
-      if (editando?.id === raza.id) limpiarFormulario();
-      setAviso(`Se eliminó la raza ${raza.nombre}.`);
-      setVersion((v) => v + 1);
-    } catch (e) {
-      setErrorAccion(e instanceof ApiError ? e.message : "No se pudo eliminar la raza.");
-    } finally {
-      setGuardando(false);
-    }
+    const ok = await ejecutar(
+      () => eliminarRaza(raza.id),
+      `Se eliminó la raza ${raza.nombre}.`,
+      "No se pudo eliminar la raza.",
+    );
+    if (ok && editando?.id === raza.id) limpiarFormulario();
   }
 
   const especies = data?.especies ?? [];
@@ -109,12 +85,7 @@ export function AbmRazas() {
           <h2>{editando ? `Modificar ${editando.nombre}` : "Nueva raza"}</h2>
           <label className={s.campo}>
             Nombre
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              required
-              disabled={guardando}
-            />
+            <input value={nombre} onChange={(e) => setNombre(e.target.value)} required disabled={guardando} />
           </label>
           <label className={s.campo}>
             Especie
@@ -132,16 +103,12 @@ export function AbmRazas() {
               ))}
             </select>
           </label>
-          <div className={s.botones}>
-            <button type="submit" className={s.primario} disabled={guardando || !nombre.trim() || !especieId}>
-              {editando ? "Guardar cambios" : "Agregar"}
-            </button>
-            {editando && (
-              <button type="button" className={s.secundario} disabled={guardando} onClick={limpiarFormulario}>
-                Cancelar
-              </button>
-            )}
-          </div>
+          <BotonesFormulario
+            editando={!!editando}
+            guardando={guardando}
+            completo={!!nombre.trim() && !!especieId}
+            onCancelar={limpiarFormulario}
+          />
         </form>
       )}
 
@@ -158,24 +125,11 @@ export function AbmRazas() {
             <li key={raza.id} className={editando?.id === raza.id ? s.filaEditando : s.fila}>
               <span className={s.nombre}>{raza.nombre}</span>
               <span className={s.detalle}>{raza.especie.nombre}</span>
-              <div className={s.botones}>
-                <button
-                  type="button"
-                  className={s.secundario}
-                  disabled={guardando}
-                  onClick={() => empezarEdicion(raza)}
-                >
-                  Modificar
-                </button>
-                <button
-                  type="button"
-                  className={s.peligro}
-                  disabled={guardando}
-                  onClick={() => eliminar(raza)}
-                >
-                  Eliminar
-                </button>
-              </div>
+              <BotonesFila
+                guardando={guardando}
+                onModificar={() => empezarEdicion(raza)}
+                onEliminar={() => eliminar(raza)}
+              />
             </li>
           ))}
         </ul>

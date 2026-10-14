@@ -70,7 +70,8 @@
   width: 100%;
 }
 
-.campo {
+.campo,
+.campoAncho {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -79,8 +80,18 @@
   font-weight: 600;
 }
 
+.campoAncho {
+  flex-basis: 100%;
+}
+
+.opcional {
+  font-weight: 400;
+  color: var(--tinta-suave);
+}
+
 .campo input,
-.campo select {
+.campo select,
+.campoAncho input {
   font: inherit;
   font-weight: 400;
   padding: 0.5rem 0.75rem;
@@ -174,6 +185,24 @@
   font-family: var(--display);
   font-size: 1.05rem;
   font-weight: 600;
+}
+
+.nombre a {
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.nombre a:hover {
+  color: var(--pasto);
+  text-decoration: underline;
+}
+
+.subdetalle {
+  display: block;
+  font-family: var(--cuerpo);
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--tinta-suave);
 }
 
 .detalle {

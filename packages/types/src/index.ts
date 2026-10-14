@@ -76,12 +76,62 @@ export interface RazaInputDTO {
   especie: number;
 }
 
+export interface LocalidadInputDTO {
+  nombre: string;
+}
+
+export interface RefugioInputDTO {
+  nombre: string;
+  direccion: string;
+  telefono: string;
+  email: string;
+  localidad: number;
+}
+
+/** password es obligatoria en el alta; en la modificacion, si no viene, no se cambia. */
+export interface UsuarioInputDTO {
+  nombre: string;
+  apellido: string;
+  email: string;
+  password?: string;
+  telefono: string;
+  rol: number;
+  /** null = no pertenece a ningun refugio (adoptante). */
+  refugio: number | null;
+}
+
+/** El estado no va: una mascota nueva nace Disponible y despues solo lo cambia la resolucion de una solicitud. */
+export interface MascotaInputDTO {
+  nombre: string;
+  raza: number;
+  refugio: number;
+  fechaDeNac?: string;
+  tamano?: string;
+  fotoURL?: string;
+  estilo?: string;
+}
+
+export interface RolDTO {
+  id: number;
+  nombre: string;
+}
+
+export interface LocalidadDTO {
+  id: number;
+  nombre: string;
+}
+
 export interface RefugioResumenDTO {
   id: number;
   nombre: string;
   direccion: string;
   telefono: string;
   email: string;
+}
+
+/** Refugio como lo devuelve GET /api/refugios (populate localidad). */
+export interface RefugioDTO extends RefugioResumenDTO {
+  localidad: LocalidadDTO;
 }
 
 /** Mascota como la devuelve GET /api/mascotas (populate raza.especie y refugio). */
@@ -135,6 +185,13 @@ export interface UsuarioResumenDTO {
   apellido: string;
   email: string;
   telefono: string;
+}
+
+/** Usuario como lo devuelve GET /api/usuarios (populate rol y refugio). */
+export interface UsuarioDTO extends UsuarioResumenDTO {
+  rol: RolDTO;
+  /** Los adoptantes no tienen refugio. */
+  refugio?: RefugioResumenDTO | null;
 }
 
 // ---------- Solicitud de adopcion ----------

@@ -96,7 +96,7 @@ function sanitizeMascotaUpdateInput(req: Request, res: Response, next: NextFunct
 const POPULATE_MASCOTA = ['raza.especie', 'refugio'] as const
 
 
-// filtros: ?estado=Disponible&tamano=Mediano  (el catalogo publico siempre manda estado=Disponible)
+// filtros: ?estado=Disponible&tamano=Mediano&refugio=1  (el catalogo publico siempre manda estado=Disponible)
 async function findAll(req: Request, res: Response){
   try{
     const estado = req.query.estado
@@ -106,10 +106,13 @@ async function findAll(req: Request, res: Response){
     const tamano = typeof req.query.tamano === 'string' && req.query.tamano.trim() !== ''
       ? req.query.tamano
       : undefined
+    // el voluntario solo ve las mascotas de su refugio
+    const refugio = parsearId(req.query.refugio)
 
     const filtro: FilterQuery<Mascota> = {
       ...(estado ? {estado} : {}),
       ...(tamano ? {tamano} : {}),
+      ...(refugio ? {refugio} : {}),
     }
 
     const mascotas = await em.find(Mascota, filtro, {populate: POPULATE_MASCOTA})

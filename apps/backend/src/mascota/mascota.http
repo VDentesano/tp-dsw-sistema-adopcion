@@ -2,6 +2,9 @@
 ### GET ALL
 GET {{baseUrl}}
 
+### GET ALL de un refugio (lo que ve el voluntario en el ABM)
+GET {{baseUrl}}?refugio=1
+
 ### POST
 # Las razas 1 a 5 y los refugios 1 y 2 los carga el seed. Esta mascota queda con id 9.
 # El estado no se puede mandar: nace Disponible (lo cambia solo el CUU de resolucion)

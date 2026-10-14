@@ -100,6 +100,8 @@ También se pueden cargar datos a mano con los archivos `.http` de cada entidad 
 
 Como todavía no hay login, en el header del front hay un selector para elegir con qué usuario de prueba entrar: Juan Perez (adoptante, id 3), Lucia Gomez (voluntaria de *Patitas al Rescate*, id 1) o Martin Suarez (voluntario de *Huellitas Funes*, id 2). La lista está en `apps/frontend/src/sesion/SesionContext.tsx` y usa los ids que carga el seed: si cargaste los datos a mano, cambiá los `id` por los de usuarios que existan.
 
+Entrando como voluntario aparece **Administrar** en el header, con los ABM de mascotas, razas, especies, refugios, localidades y usuarios (`/admin/...`). En el de mascotas el voluntario ve y carga solo las de su refugio. Rol no tiene pantalla porque los roles son fijos (Adoptante y Voluntario): su CRUD queda solo en la API. El ABM de usuarios es provisorio hasta que exista el login y el registro.
+
 ### Otros comandos
 
 | Comando | Dónde | Qué hace |
@@ -123,7 +125,7 @@ Todas las rutas cuelgan de `http://localhost:3000/api`, en plural. Cada recurso 
 | Localidad | `/localidades` | |
 | Refugio | `/refugios` | |
 | Usuario | `/usuarios` | |
-| Mascota | `/mascotas` | `?estado=Disponible&tamano=Mediano` |
+| Mascota | `/mascotas` | `?estado=Disponible&tamano=Mediano&refugio=1` |
 | Pregunta del formulario | `/preguntas` | `?refugio=1&activa=true` |
 | Solicitud de adopción | `/solicitudes` | `?estado=Pendiente&usuario=1&mascota=1&refugio=1` |
 | Vacuna | `/vacunas` | |
@@ -155,8 +157,8 @@ Los errores responden `{ message }` con estos códigos:
 
 ## Estado del proyecto (alcance mínimo)
 
-- [x] CRUD simple: Refugio, Usuario, Especie, Rol
-- [x] CRUD dependiente: Mascota, Raza
+- [x] CRUD simple: Refugio, Usuario, Especie, Localidad (API y pantallas en el front)
+- [x] CRUD dependiente: Mascota, Raza (API y pantallas en el front)
 - [x] Catálogo de mascotas filtrado por estado y tamaño
 - [x] Detalle de mascota con ficha médica y vacunas
 - [x] Gestión de solicitudes para el voluntario (listado por estado y detalle del formulario)
@@ -196,3 +198,4 @@ Los errores responden `{ message }` con estos códigos:
 29) Hicimos la ficha médica: creamos las entities `Vacuna` (nombre y si es obligatoria) e `Historia_Clinica` (cada fila es una vacuna aplicada a una mascota, con la fecha de aplicación y la del próximo refuerzo), con su CRUD, sus `.http` y datos en el seed. El `GET /api/mascotas/:id` ahora trae la historia clínica con el nombre de cada vacuna, y el detalle de la mascota en el front la muestra en una sección nueva, marcando los refuerzos vencidos. El próximo refuerzo tiene que ser posterior a la aplicación, y la aplicación no puede ser una fecha futura. De paso arreglamos las fechas sin hora en el front: `new Date("2025-05-10")` se toma como medianoche UTC y en Argentina se mostraba el día anterior. También pasamos a `sanitizacion.ts` el chequeo de "fecha futura" que usaban mascota e historia clínica: comparaba contra la fecha UTC, así que desde las 21 hs dejaba cargar la fecha de mañana. En el `PUT` de historia clínica, `"proximoRefuerzo": null` borra el refuerzo
 30) Unificamos las respuestas de la API: los mensajes de localidad, mascota y refugio estaban en inglés y el front los mostraba tal cual (entrando a una mascota que no existe aparecía "not found mascota"), y rol, especie, raza, más el `DELETE` de localidad y de usuario, respondían solo el mensaje sin el `data` que documenta este README. Corregimos también los requisitos: piden pnpm 11.5.1 o superior, porque pnpm 10 no puede leer el lockfile
 31) Arreglamos dos agujeros del CUU de resolución. Primero, el endpoint solo miraba que el voluntario fuera del refugio de la mascota, y como el CRUD de usuarios deja cargarle un refugio a un adoptante, ese adoptante podía aprobar solicitudes: ahora también se exige el rol `Voluntario` (403). Segundo, las validaciones de estado se hacían antes de abrir la transacción, así que dos voluntarios aprobando a la vez dos solicitudes de la misma mascota pasaban los dos el chequeo y quedaban dos `Aprobada`, con la auditoría duplicada. Ahora, dentro de la transacción, se bloquean con `SELECT ... FOR UPDATE` primero la fila de la mascota y después la de la solicitud, y recién ahí se valida que la solicitud siga `Pendiente` y, al aprobar, que la mascota siga `Disponible` (409). La segunda resolución espera a que termine la primera y ve el estado que dejó. Lo probamos con 5 rondas de 12 aprobaciones simultáneas: siempre quedó una sola aprobada por mascota, sin errores ni deadlocks
+32) Hicimos las pantallas de los CRUD en el front, en una sección "Administrar" para el voluntario: mascotas, razas, especies, refugios, localidades y usuarios. Cada una tiene el listado y un formulario que sirve para el alta y para modificar el registro elegido, y la baja pide confirmación. Los errores de la API se muestran tal cual (por ejemplo, borrar una especie que tiene razas da "no se puede eliminar porque hay registros de raza asociados"). La lógica que comparten está en el hook `useAbm` y en `AbmControles.tsx`. El ABM de mascotas no deja tocar el estado, que solo cambia al resolver una solicitud, y muestra solo las mascotas del refugio del voluntario: para eso le sumamos el filtro `?refugio=` al listado de mascotas, y las que carga quedan siempre en su refugio. En la propuesta cambiamos el CRUD simple de Rol por el de Localidad: los roles son fijos (Adoptante y Voluntario), así que Rol no tiene pantalla y su CRUD queda solo en la API. El de usuarios es provisorio hasta que tengamos login
