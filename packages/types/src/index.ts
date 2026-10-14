@@ -64,6 +64,18 @@ export interface RazaDTO {
   especie: EspecieDTO;
 }
 
+// ---------- DTOs de escritura de los CRUD (lo que el front manda en POST y PUT) ----------
+
+export interface EspecieInputDTO {
+  nombre: string;
+}
+
+/** La especie va como id, no como objeto. */
+export interface RazaInputDTO {
+  nombre: string;
+  especie: number;
+}
+
 export interface RefugioResumenDTO {
   id: number;
   nombre: string;

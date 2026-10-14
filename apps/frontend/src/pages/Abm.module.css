@@ -1,0 +1,203 @@
+/* Estilos compartidos por las pantallas de ABM (especies, razas y las que se sumen) */
+
+.titulo {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+}
+
+.bajada {
+  margin: 0.5rem 0 1.25rem;
+  color: var(--tinta-suave);
+}
+
+.pestanas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.pestana,
+.pestanaActiva {
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.35rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--linea);
+  text-decoration: none;
+}
+
+.pestana {
+  background: var(--carta);
+  color: var(--tinta-suave);
+}
+
+.pestana:hover {
+  color: var(--tinta);
+  border-color: var(--tinta-suave);
+}
+
+.pestanaActiva {
+  background: var(--pasto);
+  border-color: var(--pasto);
+  color: #fdfcf6;
+}
+
+.formulario {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem 1rem;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.formulario > h2 {
+  width: 100%;
+  font-size: 0.8rem;
+  font-family: var(--cuerpo);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tinta-suave);
+}
+
+.formulario > [role="alert"] {
+  width: 100%;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1 1 14rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.campo input,
+.campo select {
+  font: inherit;
+  font-weight: 400;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.botones {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.primario,
+.secundario,
+.peligro {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.primario {
+  background: var(--pasto);
+  color: #fdfcf6;
+  border: 1px solid var(--pasto);
+}
+
+.primario:hover:not(:disabled) {
+  background: var(--pasto-oscuro);
+}
+
+.secundario {
+  background: transparent;
+  color: var(--tinta-suave);
+  border: 1px solid var(--linea);
+}
+
+.secundario:hover:not(:disabled) {
+  color: var(--tinta);
+  border-color: var(--tinta-suave);
+}
+
+.peligro {
+  background: transparent;
+  color: var(--tono-rojo);
+  border: 1px solid currentColor;
+}
+
+.peligro:hover:not(:disabled) {
+  background: var(--tono-rojo-fondo);
+}
+
+.primario:disabled,
+.secundario:disabled,
+.peligro:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.lista {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fila,
+.filaEditando {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 1rem 0.7rem 1.25rem;
+  background: var(--carta);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+}
+
+.filaEditando {
+  border-color: var(--laton);
+  background: var(--laton-suave);
+}
+
+.nombre {
+  flex: 1;
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.detalle {
+  font-size: 0.9rem;
+  color: var(--tinta-suave);
+}
+
+.fila .botones,
+.filaEditando .botones {
+  margin-left: auto;
+}
+
+.fila button,
+.filaEditando button {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.9rem;
+}
+
+@media (max-width: 560px) {
+  .fila,
+  .filaEditando {
+    flex-wrap: wrap;
+  }
+  .nombre {
+    flex-basis: 100%;
+  }
+}

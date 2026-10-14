@@ -31,6 +31,11 @@ export function Layout() {
           >
             {esVoluntario ? "Solicitudes del refugio" : "Mis solicitudes"}
           </NavLink>
+          {esVoluntario && (
+            <NavLink to="/admin" className={({ isActive }) => (isActive ? s.activo : s.link)}>
+              Administrar
+            </NavLink>
+          )}
         </nav>
 
         {/* hasta que exista el login se elige con qué usuario de prueba se entra */}
@@ -43,7 +48,7 @@ export function Layout() {
         >
           {usuariosDemo.map((u) => (
             <option key={u.id} value={u.id}>
-              {u.nombre} {u.apellido} · {u.rol.toLowerCase()}
+              {u.nombre} {u.apellido} · {u.rol.toLowerCase()} 
             </option>
           ))}
         </select>
