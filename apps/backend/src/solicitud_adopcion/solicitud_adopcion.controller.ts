@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express"
-import type { FilterQuery } from "@mikro-orm/core"
+import { LockMode, type FilterQuery } from "@mikro-orm/core"
 import type {  DecisionSolicitud, EstadoSolicitud, NuevaSolicitudDTO, ResolucionSolicitudDTO, RespuestasFormulario } from "@proyecto/types"
 import { orm } from "../shared/db/orm.js"
 import { responderError } from "../shared/errores.js"
@@ -7,6 +7,7 @@ import { esTextoValido, parsearId } from "../shared/sanitizacion.js"
 import { DECISIONES_SOLICITUD , ESTADOS_SOLICITUD, Solicitud_Adopcion } from "./solicitud_adopcion.entity.js"
 import { MASCOTA_DISPONIBLE, Mascota } from "../mascota/mascota.entity.js"
 import { Usuario } from "../usuario/usuario.entity.js"
+import { ROL_VOLUNTARIO } from "../rol/rol.entity.js"
 import { Pregunta_Formulario } from "../pregunta/pregunta.entity.js"
 import { registrarCambioEstado } from "../auditoria_estado/auditoria_estado.service.js"
 
@@ -212,6 +213,22 @@ async function add(req: Request, res: Response){
 }
 
 
+/*
+  Lo que devuelve la transaccion del resolver: la solicitud ya resuelta, o el motivo por el
+  que no se pudo resolver (se responde 409). En ese caso no se modifico nada.
+*/
+type ResultadoResolucion =
+  | {ok: true, solicitud: Solicitud_Adopcion}
+  | {ok: false, conflicto: string}
+
+/*
+  CUU: el voluntario aprueba o rechaza una solicitud. Las reglas se validan en dos tandas:
+  1. Antes de la transaccion, lo que no cambia mientras se resuelve: que existan la solicitud
+     y el voluntario (404), y que el voluntario pueda resolverla por su rol y su refugio (403).
+  2. Dentro de la transaccion y con las filas bloqueadas, lo que si puede cambiar si dos
+     voluntarios resuelven a la vez: que la solicitud siga Pendiente y, al aprobar, que la
+     mascota siga Disponible (409).
+*/
 async function resolver(req: Request, res: Response){
   try{
     const id = parsearId(req.params.id)
@@ -220,25 +237,43 @@ async function resolver(req: Request, res: Response){
     }
     const {decision, motivo, voluntario: voluntarioId} = req.body.sanitizedInput as ResolucionSolicitudDTO
 
-    const solicitud = await em.findOne(Solicitud_Adopcion, {id}, {populate: ['mascota', 'usuario']})
+    const solicitud = await em.findOne(Solicitud_Adopcion, {id}, {populate: ['mascota']})
     if(!solicitud){
       return res.status(404).json({message: 'solicitud no encontrada'})
     }
-    if(solicitud.estado !== 'Pendiente'){
-      return res.status(409).json({message: `la solicitud ya fue resuelta (estado actual: ${solicitud.estado})`})
-    }
 
-    const voluntario = await em.findOne(Usuario, {id: voluntarioId})
+    const voluntario = await em.findOne(Usuario, {id: voluntarioId}, {populate: ['rol']})
     if(!voluntario){
       return res.status(404).json({message: 'voluntario no encontrado'})
     }
-    // RN: solo un voluntario del refugio de la mascota puede resolver sus solicitudes
+    // RN: solo resuelve un usuario con rol Voluntario (el CRUD deja cargarle un refugio a un adoptante)
+    if(voluntario.rol.nombre !== ROL_VOLUNTARIO){
+      return res.status(403).json({message: 'solo un voluntario puede resolver solicitudes'})
+    }
+    // RN: y solo las solicitudes de las mascotas de su refugio
     if(voluntario.refugio?.id !== solicitud.mascota.refugio.id){
       return res.status(403).json({message: 'el voluntario no pertenece al refugio de la mascota'})
     }
-    
-      const solicitudResuelta = await em.transactional(async (tem) => {
-      const solicitudTx = await tem.findOneOrFail(Solicitud_Adopcion, {id}, {populate: ['mascota']})
+
+    const resultado = await em.transactional<ResultadoResolucion>(async (tem) => {
+      /*
+        Bloqueo pesimista (SELECT ... FOR UPDATE): la fila queda bloqueada hasta el commit, y otra
+        transaccion que quiera bloquearla espera. Se bloquea siempre primero la mascota: asi dos
+        resoluciones de la misma mascota, aunque sean de solicitudes distintas, pasan de a una y la
+        segunda ve lo que dejo la primera. refresh relee la fila aunque ya estuviera en memoria.
+      */
+      const mascota = await tem.findOneOrFail(Mascota, solicitud.mascota,
+        {lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true})
+      const solicitudTx = await tem.findOneOrFail(Solicitud_Adopcion, {id},
+        {lockMode: LockMode.PESSIMISTIC_WRITE, refresh: true})
+
+      // si una regla falla todavia no se toco nada: el commit solo libera los bloqueos
+      if(solicitudTx.estado !== 'Pendiente'){
+        return {ok: false, conflicto: `la solicitud ya fue resuelta (estado actual: ${solicitudTx.estado})`}
+      }
+      if(decision === 'Aprobada' && mascota.estado !== MASCOTA_DISPONIBLE){
+        return {ok: false, conflicto: `la mascota no esta disponible para adopcion (estado actual: ${mascota.estado})`}
+      }
 
       solicitudTx.estado = decision
       if(motivo !== undefined){
@@ -247,18 +282,23 @@ async function resolver(req: Request, res: Response){
 
       if(decision === 'Aprobada'){
         // la mascota queda Reservada: tiene dueño pero todavia no fue entregada
-        registrarCambioEstado(tem, solicitudTx.mascota, 'Reservada', motivo)
+        registrarCambioEstado(tem, mascota, 'Reservada', motivo)
 
         // RN: al aprobar una, las demas postulaciones a esa mascota se caen solas
         await tem.nativeUpdate(Solicitud_Adopcion,
-          {mascota: solicitudTx.mascota, estado: 'Pendiente', id: {$ne: id}},
+          {mascota, estado: 'Pendiente', id: {$ne: id}},
           {estado: 'Rechazada', motivo: 'se aprobo otra solicitud para esta mascota'})
       }
 
-      return solicitudTx
+      // la respuesta tiene la misma forma que GET /solicitudes/:id
+      await tem.populate(solicitudTx, ['mascota', 'usuario'])
+      return {ok: true, solicitud: solicitudTx}
     })
 
-    res.status(200).json({message: 'solicitud resuelta', data: solicitudResuelta})
+    if(!resultado.ok){
+      return res.status(409).json({message: resultado.conflicto})
+    }
+    res.status(200).json({message: 'solicitud resuelta', data: resultado.solicitud})
   }catch(error){
     responderError(res, error)
   }

@@ -139,8 +139,11 @@ Content-Type: application/json
 
 
 # ------- CUU de resolucion: el voluntario aprueba o rechaza -------
-# RN: solo se resuelve una solicitud Pendiente, y solo un voluntario del refugio
-# de la mascota puede hacerlo. El motivo es obligatorio al rechazar.
+# RN: solo se resuelve una solicitud Pendiente, y solo un usuario con rol Voluntario
+# del refugio de la mascota puede hacerlo. El motivo es obligatorio al rechazar, y
+# para aprobar la mascota tiene que seguir Disponible.
+# Dos aprobaciones al mismo tiempo no se pueden probar desde aca (REST Client manda
+# los requests de a uno): el bloqueo de filas que las ordena esta explicado en el controller.
 # Los ids de abajo son los que carga el seed (pnpm --filter backend seed):
 # la mascota 1 (Mora, refugio 1) tiene las solicitudes 1, 2 y 3 pendientes,
 # y el usuario 1 es la voluntaria de ese refugio.
@@ -182,6 +185,16 @@ Content-Type: application/json
 {
   "decision": "Aprobada",
   "voluntario": 2
+}
+
+### Usuario que no tiene rol Voluntario -> 403
+# el usuario 3 (Juan) es adoptante: aunque tuviera un refugio cargado, no puede resolver
+POST {{baseUrl}}/2/resolver
+Content-Type: application/json
+
+{
+  "decision": "Aprobada",
+  "voluntario": 3
 }
 
 ### Rechazar sin motivo -> 400
