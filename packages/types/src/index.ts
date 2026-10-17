@@ -88,7 +88,10 @@ export interface RefugioInputDTO {
   localidad: number;
 }
 
-/** password es obligatoria en el alta; en la modificacion, si no viene, no se cambia. */
+/**
+ * password es obligatoria en el alta; en la modificacion, si no viene, no se cambia.
+ * Solo los voluntarios tienen refugio: el back rechaza (400) un voluntario sin refugio o cualquier otro rol con refugio.
+ */
 export interface UsuarioInputDTO {
   nombre: string;
   apellido: string;
@@ -100,15 +103,18 @@ export interface UsuarioInputDTO {
   refugio: number | null;
 }
 
-/** El estado no va: una mascota nueva nace Disponible y despues solo lo cambia la resolucion de una solicitud. */
+/**
+ * El estado no va: una mascota nueva nace Disponible y despues solo lo cambia la resolucion de una solicitud.
+ * En los opcionales, null borra el dato; si no vienen, en la modificacion quedan como estaban.
+ */
 export interface MascotaInputDTO {
   nombre: string;
   raza: number;
   refugio: number;
-  fechaDeNac?: string;
-  tamano?: string;
-  fotoURL?: string;
-  estilo?: string;
+  fechaDeNac?: string | null;
+  tamano?: string | null;
+  fotoURL?: string | null;
+  estilo?: string | null;
 }
 
 export interface RolDTO {

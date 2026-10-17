@@ -31,6 +31,16 @@ Content-Type: application/json
   "tamano": "Chico"
 }
 
+### PUT borrando datos opcionales
+# null borra fechaDeNac, tamano, fotoURL o estilo; si no se mandan, quedan como estaban
+PUT {{baseUrl}}/9
+Content-Type: application/json
+
+{
+  "fechaDeNac": null,
+  "tamano": null
+}
+
 ### REMOVE
 # Ojo: una mascota con solicitudes o con auditoria de estados no se puede borrar (409)
 DELETE {{baseUrl}}/9

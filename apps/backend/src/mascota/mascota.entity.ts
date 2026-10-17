@@ -29,20 +29,20 @@ export class Mascota extends BaseEntity {
 
   // una columna date (sin hora) MikroORM la maneja como string YYYY-MM-DD, no como Date
   @Property({ type: "date", nullable: true })
-  fechaDeNac?: string;
+  fechaDeNac?: string | null;
 
   @Property({ type: "string", nullable: true })
-  tamano?: string;
+  tamano?: string | null;
 
   // nullable por compatibilidad con filas viejas; las nuevas nacen "Disponible"
   @Property({ type: "string", nullable: true })
   estado?: EstadoMascota = MASCOTA_DISPONIBLE;
 
   @Property({ type: "string", nullable: true })
-  fotoURL?: string;
+  fotoURL?: string | null;
 
   @Property({ type: "string", nullable: true })
-  estilo?: string;
+  estilo?: string | null;
 
   @ManyToOne(() => Raza, { nullable: false })
   raza!: Raza;

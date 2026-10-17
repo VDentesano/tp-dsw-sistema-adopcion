@@ -31,6 +31,12 @@ export function AbmUsuarios() {
     return <Aviso>Esta sección es para los voluntarios de un refugio.</Aviso>;
   }
 
+  const roles = data?.roles ?? [];
+  const refugios = data?.refugios ?? [];
+  const usuarios = data?.usuarios;
+  // solo los voluntarios tienen refugio: con otro rol el select se deshabilita y se manda null
+  const esVoluntario = roles.find((rol) => String(rol.id) === form.rol)?.nombre === "Voluntario";
+
   function cambiar(campo: keyof typeof VACIO, valor: string) {
     setForm((f) => ({ ...f, [campo]: valor }));
   }
@@ -63,7 +69,7 @@ export function AbmUsuarios() {
       email: form.email.trim(),
       telefono: form.telefono.trim(),
       rol: Number(form.rol),
-      refugio: form.refugio ? Number(form.refugio) : null,
+      refugio: esVoluntario ? Number(form.refugio) : null,
       ...(form.password ? { password: form.password } : {}),
     };
     const quien = `${dto.nombre} ${dto.apellido}`;
@@ -88,13 +94,11 @@ export function AbmUsuarios() {
     if (ok && editando?.id === usuario.id) limpiarFormulario();
   }
 
-  const roles = data?.roles ?? [];
-  const refugios = data?.refugios ?? [];
-  const usuarios = data?.usuarios;
   // en el alta la contraseña es obligatoria; al modificar, vacia significa que no se cambia
   const completo =
     [form.nombre, form.apellido, form.email, form.telefono, form.rol].every((valor) => valor.trim() !== "") &&
-    (!!editando || form.password !== "");
+    (!!editando || form.password !== "") &&
+    (!esVoluntario || form.refugio !== "");
 
   return (
     <>
@@ -168,11 +172,12 @@ export function AbmUsuarios() {
         <label className={s.campo}>
           Refugio
           <select
-            value={form.refugio}
+            value={esVoluntario ? form.refugio : ""}
             onChange={(e) => cambiar("refugio", e.target.value)}
-            disabled={guardando || !data}
+            required={esVoluntario}
+            disabled={guardando || !data || !esVoluntario}
           >
-            <option value="">Ninguno (adoptante)</option>
+            <option value="">{esVoluntario ? "Elegí un refugio" : "Ninguno (solo para voluntarios)"}</option>
             {refugios.map((refugio) => (
               <option key={refugio.id} value={refugio.id}>
                 {refugio.nombre}

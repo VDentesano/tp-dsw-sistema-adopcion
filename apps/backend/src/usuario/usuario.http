@@ -5,7 +5,8 @@ GET {{baseUrl}}
 
 
 # Ojo: el rol con ese id tiene que existir (el seed carga Adoptante=1, Voluntario=2,
-# Administrador=3). El email es unico: los del seed ya estan tomados
+# Administrador=3). El email es unico: los del seed ya estan tomados.
+# Solo los voluntarios tienen refugio: un voluntario sin refugio, o cualquier otro rol con refugio, da 400
 ### 
 # @name createUsuario
 POST {{baseUrl}}
@@ -38,6 +39,34 @@ Content-Type: application/json
   "apellido": "Rios",
   "email": "marcela.rios@example.com",
   "telefono": "3415559002"
+}
+
+
+### PUT con refugio a un adoptante: da 400 (solo los voluntarios pueden pertenecer a un refugio)
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "refugio": 1
+}
+
+
+### PUT a voluntario sin refugio: da 400 (un voluntario tiene que pertenecer a un refugio)
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "rol": 2
+}
+
+
+### PUT a voluntario de Patitas al Rescate: el rol y el refugio van juntos
+PUT {{baseUrl}}/{{id}}
+Content-Type: application/json
+
+{
+  "rol": 2,
+  "refugio": 1
 }
 
 

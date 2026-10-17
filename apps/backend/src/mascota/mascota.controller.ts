@@ -8,13 +8,16 @@ import { ESTADOS_MASCOTA, Mascota } from "./mascota.entity.js"
 
 const em = orm.em
 
-/** Campos que se pueden cargar o modificar desde el CRUD. El id y las solicitudes no. */
+/**
+ * Campos que se pueden cargar o modificar desde el CRUD. El id y las solicitudes no.
+ * Los opcionales aceptan null para borrar el dato: en la modificacion, si no vienen, quedan como estaban.
+ */
 interface MascotaInput {
   nombre?: string
-  fechaDeNac?: string
-  tamano?: string
-  fotoURL?: string
-  estilo?: string
+  fechaDeNac?: string | null
+  tamano?: string | null
+  fotoURL?: string | null
+  estilo?: string | null
   raza?: number
   refugio?: number
 }
@@ -35,23 +38,40 @@ function leerMascota(body: Record<string, unknown>): MascotaInput | string{
     if(!esTextoValido(body.nombre)) return 'nombre no puede estar vacio'
     input.nombre = body.nombre.trim()
   }
+  // los opcionales con null se borran; un string vacio sigue siendo invalido
   if(body.fechaDeNac !== undefined){
-    if(!esFechaValida(body.fechaDeNac)) return 'fechaDeNac debe ser una fecha valida con formato YYYY-MM-DD'
-    if(esFechaFutura(body.fechaDeNac)) return 'fechaDeNac no puede ser una fecha futura'
-    input.fechaDeNac = body.fechaDeNac
+    if(body.fechaDeNac === null){
+      input.fechaDeNac = null
+    } else {
+      if(!esFechaValida(body.fechaDeNac)) return 'fechaDeNac debe ser una fecha valida con formato YYYY-MM-DD, o null para borrarla'
+      if(esFechaFutura(body.fechaDeNac)) return 'fechaDeNac no puede ser una fecha futura'
+      input.fechaDeNac = body.fechaDeNac
+    }
   }
   if(body.tamano !== undefined){
-    if(!esTextoValido(body.tamano)) return 'tamano no puede estar vacio'
-    input.tamano = body.tamano.trim()
+    if(body.tamano === null){
+      input.tamano = null
+    } else {
+      if(!esTextoValido(body.tamano)) return 'tamano no puede estar vacio (para borrarlo mandar null)'
+      input.tamano = body.tamano.trim()
+    }
   }
   // el estado no se toca desde el CRUD: lo cambia el CUU de resolucion, que ademas registra la auditoria
   if(body.fotoURL !== undefined){
-    if(!esUrlValida(body.fotoURL)) return 'fotoURL debe ser un link http o https'
-    input.fotoURL = body.fotoURL.trim()
+    if(body.fotoURL === null){
+      input.fotoURL = null
+    } else {
+      if(!esUrlValida(body.fotoURL)) return 'fotoURL debe ser un link http o https, o null para borrarla'
+      input.fotoURL = body.fotoURL.trim()
+    }
   }
   if(body.estilo !== undefined){
-    if(!esTextoValido(body.estilo)) return 'estilo no puede estar vacio'
-    input.estilo = body.estilo.trim()
+    if(body.estilo === null){
+      input.estilo = null
+    } else {
+      if(!esTextoValido(body.estilo)) return 'estilo no puede estar vacio (para borrarlo mandar null)'
+      input.estilo = body.estilo.trim()
+    }
   }
   if(body.raza !== undefined){
     const raza = parsearId(body.raza)

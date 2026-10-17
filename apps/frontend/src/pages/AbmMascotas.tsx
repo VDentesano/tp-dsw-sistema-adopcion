@@ -92,17 +92,16 @@ export function AbmMascotas() {
 
   async function guardar(e: FormEvent) {
     e.preventDefault();
-    const estilo = form.estilo.trim();
-    const fotoURL = form.fotoURL.trim();
-    // el backend no acepta opcionales vacios, asi que solo van los que se completaron
+    // los opcionales vacios van como null: en el alta quedan sin dato y al modificar borran el que habia.
+    // Si no se mandaran, el PUT los dejaria como estaban aunque se hayan borrado en el formulario.
     const dto: MascotaInputDTO = {
       nombre: form.nombre.trim(),
       raza: Number(form.raza),
       refugio: miRefugio,
-      ...(form.fechaDeNac ? { fechaDeNac: form.fechaDeNac } : {}),
-      ...(form.tamano ? { tamano: form.tamano } : {}),
-      ...(estilo ? { estilo } : {}),
-      ...(fotoURL ? { fotoURL } : {}),
+      fechaDeNac: form.fechaDeNac || null,
+      tamano: form.tamano || null,
+      estilo: form.estilo.trim() || null,
+      fotoURL: form.fotoURL.trim() || null,
     };
     const ok = editando
       ? await ejecutar(

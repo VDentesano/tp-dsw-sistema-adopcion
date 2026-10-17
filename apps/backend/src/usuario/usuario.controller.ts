@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import { orm } from "../shared/db/orm.js";
 import { responderError } from "../shared/errores.js";
 import { camposFaltantes, esEmailValido, esTextoValido, parsearId } from "../shared/sanitizacion.js";
+import { ROL_VOLUNTARIO, Rol } from "../rol/rol.entity.js";
 import { Usuario } from "./usuario.entity.js";
 
 const em = orm.em;
@@ -86,6 +87,21 @@ function sanitizeUsuarioUpdateInput(req: Request, res: Response, next: NextFunct
 }
 
 
+/*
+  RN: un usuario tiene refugio si y solo si es Voluntario. Un voluntario sin refugio no puede
+  gestionar nada, y un adoptante (o cualquier otro rol) con refugio no tiene sentido en el modelo.
+  Necesita ir a la base a buscar el nombre del rol, por eso no esta en el middleware de sanitizacion.
+  Devuelve el mensaje de error, o null si la combinacion es valida.
+*/
+async function validarRolYRefugio(rolId: number, refugioId: number | null): Promise<string | null> {
+  const rol = await em.findOne(Rol, { id: rolId });
+  if (!rol) return 'el id indicado para rol no existe';
+  if (rol.nombre === ROL_VOLUNTARIO && refugioId === null) return 'un voluntario tiene que pertenecer a un refugio';
+  if (rol.nombre !== ROL_VOLUNTARIO && refugioId !== null) return 'solo los voluntarios pueden pertenecer a un refugio';
+  return null;
+}
+
+
 // --------- handlers ---------
 
 async function findAll(req: Request, res: Response) {
@@ -118,6 +134,12 @@ async function findOne(req: Request, res: Response) {
 
 async function add(req: Request, res: Response) {
   try {
+    const input = req.body.sanitizedInput as UsuarioInput;
+    // el rol es obligatorio en el alta (lo exige sanitizeUsuarioInput); si no viene refugio, no tiene
+    const errorRol = await validarRolYRefugio(input.rol as number, input.refugio ?? null);
+    if (errorRol) {
+      return res.status(400).json({ message: errorRol });
+    }
     const usuario = em.create(Usuario, req.body.sanitizedInput);
     await em.flush();
     res.status(201).json({ message: 'Usuario agregado', data: usuario });
@@ -137,7 +159,16 @@ async function update(req: Request, res: Response) {
     if (!usuario) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-    em.assign(usuario, req.body.sanitizedInput as UsuarioInput);
+    const input = req.body.sanitizedInput as UsuarioInput;
+    // se valida como queda el usuario: lo que vino en el body y, lo que no vino, lo que ya tenia
+    // (el id de BaseEntity es opcional, pero un usuario guardado siempre tiene rol con id)
+    const rolFinal = input.rol ?? (usuario.rol.id as number);
+    const refugioFinal = input.refugio !== undefined ? input.refugio : (usuario.refugio?.id ?? null);
+    const errorRol = await validarRolYRefugio(rolFinal, refugioFinal);
+    if (errorRol) {
+      return res.status(400).json({ message: errorRol });
+    }
+    em.assign(usuario, input);
     await em.flush();
     res.status(200).json({ message: 'Usuario actualizado', data: usuario });
   } catch (error) {
